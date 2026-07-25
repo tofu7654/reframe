@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { MapPin, MessageSquare, UserPlus, MoreHorizontal } from "lucide-react";
+import bannerAsset from "@/assets/mbappe_banner.avif.asset.json";
 import { TopNav } from "@/components/linkedout/TopNav";
 import { getPerson } from "@/lib/people-data";
 
@@ -32,7 +33,11 @@ function ProfilePage() {
       <div className="max-w-[1128px] mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
         <div className="space-y-2">
           <div className="bg-card rounded-lg border border-border overflow-hidden">
-            <div className="h-40 bg-gradient-to-r from-brand/80 to-brand" />
+            <div
+              className="h-40 bg-cover bg-center"
+              style={{ backgroundImage: `url(${bannerAsset.url})` }}
+            />
+
             <div className="px-6 pb-6 -mt-16">
               <div className="h-32 w-32 rounded-full bg-brand text-brand-foreground border-4 border-card flex items-center justify-center font-bold text-4xl">
                 {person.initials}
