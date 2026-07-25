@@ -81,6 +81,7 @@ describe("RecommendationCoordinator", () => {
     expect(coordinator.getPlannerInput(DEFAULT_MANIFEST, ["application-tracker"])).toEqual({
       summary: {
         counts: {
+          job_search_performed: 0,
           job_saved: 1,
           job_application_started: 0,
           job_application_submitted: 0,

@@ -1,7 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
+import { MANIFEST_PRESET_IDS } from "@/contracts/personalization";
 import type { PlannerInput } from "./planner";
-import { buildGeminiRulePrompt, GEMINI_RULE_PROMPT_VERSION } from "./geminiRulePrompt";
+import {
+  buildGeminiRulePrompt,
+  GEMINI_PROMPT_RULE_IDS,
+  GEMINI_RULE_PROMPT_VERSION,
+} from "./geminiRulePrompt";
 import type { GeminiPlanResult, GeminiRecommendationPlanner } from "./verifiedPlanner";
 
 const DEFAULT_MODEL = "gemini-3.5-flash-lite";
@@ -9,13 +14,7 @@ const DEFAULT_TIMEOUT_MS = 5_000;
 
 const recommendationSchema = z
   .object({
-    id: z.enum([
-      "post-engagers",
-      "applied-company-connections",
-      "application-tracker",
-      "saved-jobs",
-      "promote-jobs",
-    ]),
+    id: z.enum(GEMINI_PROMPT_RULE_IDS),
     expectedManifestRevision: z.number().int().nonnegative(),
     title: z.string(),
     description: z.string(),
@@ -24,7 +23,7 @@ const recommendationSchema = z
         z
           .object({
             type: z.literal("add_module"),
-            slot: z.enum(["homeMain", "homeRightRail", "jobsMain"]),
+            slot: z.enum(["homeLeftRail", "homeMain", "homeRightRail", "jobsMain"]),
             componentId: z.enum([
               "feed",
               "savedJobs",
@@ -32,6 +31,10 @@ const recommendationSchema = z
               "applicationTracker",
               "appliedCompanyConnections",
               "postEngagers",
+              "candidateResearchQueue",
+              "jobDiscoveryHub",
+              "creatorCommandCenter",
+              "talentPipeline",
             ]),
             index: z.number().int().optional(),
           })
@@ -39,7 +42,7 @@ const recommendationSchema = z
         z
           .object({
             type: z.literal("remove_module"),
-            slot: z.enum(["homeMain", "homeRightRail", "jobsMain"]),
+            slot: z.enum(["homeLeftRail", "homeMain", "homeRightRail", "jobsMain"]),
             componentId: z.enum([
               "feed",
               "savedJobs",
@@ -47,6 +50,10 @@ const recommendationSchema = z
               "applicationTracker",
               "appliedCompanyConnections",
               "postEngagers",
+              "candidateResearchQueue",
+              "jobDiscoveryHub",
+              "creatorCommandCenter",
+              "talentPipeline",
             ]),
           })
           .strict(),
@@ -72,6 +79,12 @@ const recommendationSchema = z
               .optional(),
           })
           .strict(),
+        z
+          .object({
+            type: z.literal("apply_manifest"),
+            manifestId: z.enum(MANIFEST_PRESET_IDS),
+          })
+          .strict(),
       ]),
     ),
   })
@@ -88,13 +101,7 @@ const RECOMMENDATION_JSON_SCHEMA = {
       properties: {
         id: {
           type: "string",
-          enum: [
-            "post-engagers",
-            "applied-company-connections",
-            "application-tracker",
-            "saved-jobs",
-            "promote-jobs",
-          ],
+          enum: GEMINI_PROMPT_RULE_IDS,
         },
         expectedManifestRevision: { type: "integer", minimum: 0 },
         title: { type: "string" },

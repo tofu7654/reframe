@@ -1,6 +1,7 @@
 import type { AnalyticsEvent, AnalyticsEventType, EventSummary } from "@/contracts/events";
 
 const EVENT_TYPES: AnalyticsEventType[] = [
+  "job_search_performed",
   "job_saved",
   "job_application_started",
   "job_application_submitted",

@@ -4,6 +4,82 @@ import { applyRecommendation } from "./manifestCore";
 import type { Recommendation } from "@/contracts/personalization";
 
 describe("applyRecommendation", () => {
+  it("applies an approved complete manifest atomically", () => {
+    const recommendation: Recommendation = {
+      id: "job-search-command-center",
+      expectedManifestRevision: 0,
+      title: "Your Job Search Command Center",
+      description: "Use the approved job-search workspace.",
+      operations: [
+        {
+          type: "apply_manifest",
+          manifestId: "job-search-command-center",
+        },
+      ],
+    };
+
+    const result = applyRecommendation(DEFAULT_MANIFEST, recommendation);
+
+    expect(result.ok).toBe(true);
+    expect(result.manifest).toMatchObject({
+      revision: 1,
+      navigation: ["home", "jobs", "network", "messaging", "notifications"],
+      slots: {
+        homeLeftRail: ["savedJobs"],
+        homeMain: ["jobDiscoveryHub", "feed"],
+        homeRightRail: ["rightSidebar"],
+        jobsMain: ["applicationTracker"],
+      },
+    });
+  });
+
+  it("rejects mixing a complete manifest with incremental operations", () => {
+    const recommendation: Recommendation = {
+      id: "job-search-command-center",
+      expectedManifestRevision: 0,
+      title: "Invalid mixed recommendation",
+      description: "Invalid mixed recommendation",
+      operations: [
+        {
+          type: "apply_manifest",
+          manifestId: "job-search-command-center",
+        },
+        {
+          type: "add_module",
+          slot: "homeMain",
+          componentId: "savedJobs",
+        },
+      ],
+    };
+
+    expect(applyRecommendation(DEFAULT_MANIFEST, recommendation)).toEqual({
+      ok: false,
+      manifest: DEFAULT_MANIFEST,
+      reason: "invalid_operation",
+    });
+  });
+
+  it("rejects a complete manifest that does not match the recommendation", () => {
+    const recommendation: Recommendation = {
+      id: "application-momentum",
+      expectedManifestRevision: 0,
+      title: "Mismatched manifest",
+      description: "Mismatched manifest",
+      operations: [
+        {
+          type: "apply_manifest",
+          manifestId: "creator-relationship-hub",
+        },
+      ],
+    };
+
+    expect(applyRecommendation(DEFAULT_MANIFEST, recommendation)).toEqual({
+      ok: false,
+      manifest: DEFAULT_MANIFEST,
+      reason: "invalid_operation",
+    });
+  });
+
   it("adds post engagers to the approved Home slot", () => {
     const recommendation: Recommendation = {
       id: "post-engagers",

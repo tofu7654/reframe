@@ -1,10 +1,10 @@
-import { MANIFEST_SCHEMA_VERSION, type UIManifest } from "@/contracts/personalization";
+import {
+  MANIFEST_SCHEMA_VERSION,
+  type ManifestPresetId,
+  type UIManifest,
+} from "@/contracts/personalization";
 
-export type ManifestPresetId =
-  | "job-search-command-center"
-  | "application-momentum"
-  | "creator-relationship-hub"
-  | "talent-scout-workspace";
+export type { ManifestPresetId } from "@/contracts/personalization";
 
 export interface ManifestPreset {
   id: ManifestPresetId;
@@ -20,13 +20,13 @@ export const MANIFEST_PRESETS: ManifestPreset[] = [
   {
     id: "job-search-command-center",
     title: "Your Job Search Command Center",
-    tendency: "Repeated job discovery and saving",
+    tendency: "Repeated job searches",
     recommendationCopy:
-      "You keep returning to Jobs and saving roles for later. Turn Home into a job-search starting point with fresh matches first, your shortlist close behind, and the general feed available when you need it.",
+      "You submitted two job searches in this session. Turn Home into a job-search starting point with fresh matches first, your shortlist close behind, and the general feed available when you need it.",
     evidenceExamples: [
-      "Visited Jobs in several recent sessions",
-      "Saved three or more roles",
-      "Started or submitted an application",
+      "Submitted two job searches",
+      "Compared roles across multiple searches",
+      "Continued exploring the Jobs experience",
     ],
     personalizedValue: [
       "Discover matching jobs immediately on Home",
@@ -137,4 +137,19 @@ export function getManifestPreset(id: ManifestPresetId): ManifestPreset {
     throw new Error(`Unknown manifest preset: ${id}`);
   }
   return preset;
+}
+
+export function manifestMatchesPreset(manifest: UIManifest, id: ManifestPresetId): boolean {
+  const target = getManifestPreset(id).manifest;
+  return (
+    arraysEqual(manifest.navigation, target.navigation) &&
+    arraysEqual(manifest.slots.homeLeftRail, target.slots.homeLeftRail) &&
+    arraysEqual(manifest.slots.homeMain, target.slots.homeMain) &&
+    arraysEqual(manifest.slots.homeRightRail, target.slots.homeRightRail) &&
+    arraysEqual(manifest.slots.jobsMain, target.slots.jobsMain)
+  );
+}
+
+function arraysEqual<T>(left: readonly T[], right: readonly T[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
 }

@@ -13,6 +13,89 @@ function events(type: AnalyticsEvent["type"], count: number): AnalyticsEvent[] {
 }
 
 describe("deterministicPlanner", () => {
+  it("recommends the complete job-search manifest after two submitted job searches", () => {
+    const recommendation = deterministicPlanner.plan({
+      summary: summarizeEvents(events("job_search_performed", 2)),
+      manifest: DEFAULT_MANIFEST,
+      suppressedRecommendationIds: [],
+    });
+
+    expect(recommendation).toMatchObject({
+      id: "job-search-command-center",
+      title: "Your Job Search Command Center",
+      operations: [
+        {
+          type: "apply_manifest",
+          manifestId: "job-search-command-center",
+        },
+      ],
+    });
+  });
+
+  it("recommends the complete application manifest after repeated application activity", () => {
+    const recommendation = deterministicPlanner.plan({
+      summary: summarizeEvents([
+        ...events("job_application_started", 2),
+        ...events("job_application_submitted", 1),
+      ]),
+      manifest: DEFAULT_MANIFEST,
+      suppressedRecommendationIds: [],
+    });
+
+    expect(recommendation).toMatchObject({
+      id: "application-momentum",
+      title: "Keep Your Applications Moving",
+      operations: [
+        {
+          type: "apply_manifest",
+          manifestId: "application-momentum",
+        },
+      ],
+    });
+  });
+
+  it("recommends the complete creator manifest after repeated publishing and engagement", () => {
+    const recommendation = deterministicPlanner.plan({
+      summary: summarizeEvents([
+        ...events("post_published", 2),
+        ...events("post_engagement_received", 2),
+      ]),
+      manifest: DEFAULT_MANIFEST,
+      suppressedRecommendationIds: [],
+    });
+
+    expect(recommendation).toMatchObject({
+      id: "creator-relationship-hub",
+      title: "Turn Engagement Into Relationships",
+      operations: [
+        {
+          type: "apply_manifest",
+          manifestId: "creator-relationship-hub",
+        },
+      ],
+    });
+  });
+
+  it("does not recommend a complete manifest that is already active", () => {
+    const activeManifest = {
+      ...DEFAULT_MANIFEST,
+      navigation: ["home", "jobs", "network", "messaging", "notifications"] as const,
+      slots: {
+        homeLeftRail: ["savedJobs"] as const,
+        homeMain: ["jobDiscoveryHub", "feed"] as const,
+        homeRightRail: ["rightSidebar"] as const,
+        jobsMain: ["applicationTracker"] as const,
+      },
+    };
+    const recommendation = deterministicPlanner.plan({
+      summary: summarizeEvents(events("job_search_performed", 2)),
+      manifest: structuredClone(activeManifest),
+      suppressedRecommendationIds: ["application-tracker", "saved-jobs", "promote-jobs"],
+    });
+
+    expect(recommendation).toBeNull();
+  });
+
   it("recommends connecting with post engagers after public engagement", () => {
     const recommendation = deterministicPlanner.plan({
       summary: summarizeEvents([
@@ -60,7 +143,7 @@ describe("deterministicPlanner", () => {
     const summary = summarizeEvents([
       ...events("job_saved", 3),
       ...events("job_application_submitted", 1),
-      ...events("jobs_route_visited", 3),
+      ...events("jobs_route_visited", 2),
     ]);
 
     const recommendation = deterministicPlanner.plan({

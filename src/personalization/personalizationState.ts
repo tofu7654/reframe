@@ -1,5 +1,6 @@
 import {
   MANIFEST_SCHEMA_VERSION,
+  RECOMMENDATION_IDS,
   type Recommendation,
   type RecommendationId,
   type UIManifest,
@@ -10,13 +11,6 @@ import { applyRecommendation } from "./manifestCore";
 const STORAGE_KEY = "reframe.personalization";
 const STORAGE_SCHEMA_VERSION = 1;
 const HISTORY_LIMIT = 10;
-const RECOMMENDATION_IDS: RecommendationId[] = [
-  "post-engagers",
-  "applied-company-connections",
-  "application-tracker",
-  "saved-jobs",
-  "promote-jobs",
-];
 
 export interface PersonalizationState {
   manifest: UIManifest;
