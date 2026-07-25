@@ -2,6 +2,7 @@ import type { RecommendationId } from "./personalization";
 
 export type AnalyticsEventType =
   | "job_saved"
+  | "job_application_started"
   | "job_application_submitted"
   | "jobs_route_visited"
   | "post_published"
@@ -24,4 +25,5 @@ export interface AnalyticsEvent {
 export interface EventSummary {
   counts: Record<AnalyticsEventType, number>;
   latestTargetIds: Partial<Record<AnalyticsEventType, string>>;
+  unfinishedApplicationTargetIds: string[];
 }

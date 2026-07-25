@@ -30,6 +30,13 @@ export function DevelopmentPanel() {
           >
             Seed application
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => seedScenario("job_application_started", 1, "sre-amazon")}
+          >
+            Seed unfinished application
+          </Button>
           <Button variant="outline" size="sm" onClick={() => seedScenario("job_saved", 3)}>
             Seed 3 saved jobs
           </Button>

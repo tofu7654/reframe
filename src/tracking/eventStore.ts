@@ -5,6 +5,7 @@ const STORAGE_SCHEMA_VERSION = 1;
 const DEFAULT_HISTORY_LIMIT = 250;
 const EVENT_TYPES: AnalyticsEventType[] = [
   "job_saved",
+  "job_application_started",
   "job_application_submitted",
   "jobs_route_visited",
   "post_published",

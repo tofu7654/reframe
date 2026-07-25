@@ -46,6 +46,14 @@ describe("deterministicPlanner", () => {
 
     expect(recommendation?.id).toBe("applied-company-connections");
     expect(recommendation?.title).toContain("Stripe");
+    expect(recommendation?.operations).toEqual([
+      {
+        type: "add_module",
+        slot: "jobsMain",
+        componentId: "appliedCompanyConnections",
+        index: 0,
+      },
+    ]);
   });
 
   it("prioritizes an application tracker recommendation", () => {
@@ -63,6 +71,29 @@ describe("deterministicPlanner", () => {
 
     expect(recommendation?.id).toBe("application-tracker");
     expect(recommendation?.expectedManifestRevision).toBe(0);
+    expect(recommendation?.operations[0]).toMatchObject({
+      type: "add_module",
+      slot: "jobsMain",
+      componentId: "applicationTracker",
+    });
+  });
+
+  it("recommends the tracker for an unfinished application", () => {
+    const recommendation = deterministicPlanner.plan({
+      summary: summarizeEvents([
+        {
+          id: "started-1",
+          type: "job_application_started",
+          occurredAt: new Date(0).toISOString(),
+          targetId: "sre-amazon",
+        },
+      ]),
+      manifest: DEFAULT_MANIFEST,
+      suppressedRecommendationIds: [],
+    });
+
+    expect(recommendation?.id).toBe("application-tracker");
+    expect(recommendation?.description).toContain("1 unfinished application");
   });
 
   it("recommends saved jobs after three saves", () => {

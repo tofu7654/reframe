@@ -78,6 +78,67 @@ describe("personalization persistence", () => {
     expect(loadPersonalizationState(storage)).toEqual(state);
   });
 
+  it("moves an accepted legacy company-connections module to the Jobs slot", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      "reframe.personalization",
+      JSON.stringify({
+        schemaVersion: 1,
+        state: {
+          manifest: {
+            schemaVersion: 1,
+            revision: 1,
+            navigation: DEFAULT_MANIFEST.navigation,
+            slots: {
+              homeMain: ["appliedCompanyConnections", "feed"],
+              homeRightRail: ["rightSidebar"],
+            },
+          },
+          history: [],
+          suppressedRecommendationIds: ["applied-company-connections"],
+        },
+      }),
+    );
+
+    const state = loadPersonalizationState(storage);
+
+    expect(state.manifest.slots.homeMain).toEqual(["feed"]);
+    expect(state.manifest.slots.jobsMain).toEqual(["appliedCompanyConnections"]);
+    expect(state.suppressedRecommendationIds).toEqual(["applied-company-connections"]);
+  });
+
+  it("moves an accepted legacy application tracker from Home to Jobs", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      "reframe.personalization",
+      JSON.stringify({
+        schemaVersion: 1,
+        state: {
+          manifest: {
+            schemaVersion: 2,
+            revision: 2,
+            navigation: DEFAULT_MANIFEST.navigation,
+            slots: {
+              homeMain: ["feed"],
+              homeRightRail: ["applicationTracker", "rightSidebar"],
+              jobsMain: ["appliedCompanyConnections"],
+            },
+          },
+          history: [],
+          suppressedRecommendationIds: ["application-tracker", "applied-company-connections"],
+        },
+      }),
+    );
+
+    const state = loadPersonalizationState(storage);
+
+    expect(state.manifest.slots.homeRightRail).toEqual(["rightSidebar"]);
+    expect(state.manifest.slots.jobsMain).toEqual([
+      "applicationTracker",
+      "appliedCompanyConnections",
+    ]);
+  });
+
   it("accepts a recommendation and saves the previous manifest", () => {
     const result = acceptRecommendation(
       createDefaultPersonalizationState(),

@@ -60,7 +60,12 @@ export function RecommendationPreviewDialog({
           <div className="space-y-5">
             {addedModules.map((operation) => {
               const Component = COMPONENT_REGISTRY[operation.componentId];
-              const location = operation.slot === "homeMain" ? "Home feed" : "Home right sidebar";
+              const location =
+                operation.slot === "homeMain"
+                  ? "Home feed"
+                  : operation.slot === "homeRightRail"
+                    ? "Home right sidebar"
+                    : "Jobs page";
               return (
                 <section key={`${operation.slot}-${operation.componentId}`} className="space-y-2">
                   <p className="text-xs font-medium text-muted-foreground">

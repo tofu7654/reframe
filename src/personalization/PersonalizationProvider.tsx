@@ -31,6 +31,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
   const activeRecommendationRef = useRef(activeRecommendation);
   const eventStoreRef = useRef<LocalEventStore | null>(null);
   const coordinatorRef = useRef<RecommendationCoordinator | null>(null);
+  const pendingEventsRef = useRef<Array<{ type: AnalyticsEventType; targetId?: string }>>([]);
   const lastTrackedJobsPathRef = useRef<string | null>(null);
 
   const updateState = useCallback((nextState: PersonalizationState) => {
@@ -48,6 +49,15 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     activeRecommendationRef.current = recommendation;
     setActiveRecommendation(recommendation);
     coordinatorRef.current?.record("recommendation_shown", recommendation.id);
+  }, []);
+
+  const recordEvent = useCallback((type: AnalyticsEventType, targetId?: string) => {
+    const coordinator = coordinatorRef.current;
+    if (coordinator) {
+      coordinator.record(type, undefined, targetId);
+      return;
+    }
+    pendingEventsRef.current.push({ type, ...(targetId ? { targetId } : {}) });
   }, []);
 
   const trackEvent = useCallback(
@@ -138,6 +148,10 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     const eventStore = new LocalEventStore(window.localStorage);
     eventStoreRef.current = eventStore;
     coordinatorRef.current = new RecommendationCoordinator(eventStore, deterministicPlanner);
+    for (const event of pendingEventsRef.current) {
+      coordinatorRef.current.record(event.type, undefined, event.targetId);
+    }
+    pendingEventsRef.current = [];
     const storedState = loadPersonalizationState(window.localStorage);
     stateRef.current = storedState;
     setPersonalizationState(storedState);
@@ -145,6 +159,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (!pathname.startsWith("/jobs")) return;
+    if (pathname.endsWith("/apply")) return;
     if (lastTrackedJobsPathRef.current === pathname) return;
     lastTrackedJobsPathRef.current = pathname;
     trackEvent("jobs_route_visited");
@@ -156,6 +171,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
       activeRecommendation,
       suppressedRecommendationIds: personalizationState.suppressedRecommendationIds,
       canRevert: personalizationState.history.length > 0,
+      recordEvent,
       trackEvent,
       seedScenario,
       acceptActiveRecommendation,
@@ -167,6 +183,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     [
       personalizationState,
       activeRecommendation,
+      recordEvent,
       trackEvent,
       seedScenario,
       acceptActiveRecommendation,
@@ -181,7 +198,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     <PersonalizationContext.Provider value={contextValue}>
       {children}
       <RecommendationOverlay />
-      {import.meta.env.DEV ? <DevelopmentPanel /> : null}
+      <DevelopmentPanel />
       <Toaster position="bottom-right" />
     </PersonalizationContext.Provider>
   );
