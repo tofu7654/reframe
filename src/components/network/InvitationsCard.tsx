@@ -11,9 +11,7 @@ export function InvitationsCard() {
   return (
     <section className="bg-card border border-border rounded-lg">
       <div className="px-4 py-3 flex items-center justify-between border-b border-border">
-        <h2 className="text-base font-semibold text-foreground">
-          Invitations ({items.length})
-        </h2>
+        <h2 className="text-base font-semibold text-foreground">Invitations ({items.length})</h2>
         <button className="text-sm font-semibold text-muted-foreground hover:text-foreground">
           Manage
         </button>
@@ -30,9 +28,7 @@ export function InvitationsCard() {
                 {invite.initials}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">
-                  {invite.name}
-                </p>
+                <p className="text-sm font-semibold text-foreground truncate">{invite.name}</p>
                 <p className="text-xs text-muted-foreground truncate">{invite.headline}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {invite.mutual} mutual connections · {invite.sentAt}

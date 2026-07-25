@@ -11,10 +11,14 @@ export const Route = createFileRoute("/network")({
       { title: "My Network — LinkedOut" },
       {
         name: "description",
-        content: "Manage your invitations, connections, and discover people you may know on LinkedOut.",
+        content:
+          "Manage your invitations, connections, and discover people you may know on LinkedOut.",
       },
       { property: "og:title", content: "My Network — LinkedOut" },
-      { property: "og:description", content: "Invitations, connections, and suggestions in one place." },
+      {
+        property: "og:description",
+        content: "Invitations, connections, and suggestions in one place.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

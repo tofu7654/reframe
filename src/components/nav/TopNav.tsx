@@ -1,16 +1,21 @@
-import { Home, Users, Briefcase, MessageSquare, Bell, Grid3x3, ChevronDown } from "lucide-react";
+import { Grid3x3, ChevronDown } from "lucide-react";
 import { useRouterState } from "@tanstack/react-router";
 import { BrandLogo } from "./BrandLogo";
 import { SearchBar } from "./SearchBar";
 import { NavItem } from "./NavItem";
+import { NAV_REGISTRY } from "./navRegistry";
+import { usePersonalization } from "@/personalization/PersonalizationContext";
 
 export function TopNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isJobs = pathname.startsWith("/jobs");
-  const isHome = pathname === "/";
-  const isMessaging = pathname.startsWith("/messaging");
-  const isNetwork = pathname.startsWith("/network");
-  const isNotifications = pathname.startsWith("/notifications");
+  const { manifest } = usePersonalization();
+
+  const isActive = (to?: string) => {
+    if (!to) return false;
+    if (to === "/") return pathname === "/";
+    return pathname.startsWith(to);
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-card border-b border-border">
       <div className="max-w-[1128px] mx-auto flex items-center h-13 px-4 gap-2">
@@ -19,17 +24,20 @@ export function TopNav() {
           <SearchBar />
         </div>
         <nav className="flex items-stretch h-14">
-          <NavItem icon={Home} label="Home" to="/" active={isHome} />
-          <NavItem icon={Users} label="Network" to="/network" active={isNetwork} badge={isNetwork ? undefined : 1} />
-          <NavItem icon={Briefcase} label="Jobs" to="/jobs" active={isJobs} />
-          <NavItem icon={MessageSquare} label="Messaging" to="/messaging" active={isMessaging} />
-          <NavItem
-            icon={Bell}
-            label="Notifications"
-            to="/notifications"
-            active={isNotifications}
-            badge={isNotifications ? undefined : 7}
-          />
+          {manifest.navigation.map((navItemId) => {
+            const item = NAV_REGISTRY[navItemId];
+            const active = isActive(item.to);
+            return (
+              <NavItem
+                key={navItemId}
+                icon={item.icon}
+                label={item.label}
+                to={item.to}
+                active={active}
+                badge={active ? undefined : item.badge}
+              />
+            );
+          })}
           <div className="w-px bg-border my-2" />
           <button className="flex flex-col items-center justify-center px-4 min-w-[80px] text-xs text-muted-foreground hover:text-foreground">
             <div className="h-6 w-6 rounded-full bg-muted-foreground/30" />

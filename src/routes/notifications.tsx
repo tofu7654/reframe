@@ -45,9 +45,7 @@ function NotificationsPage() {
           <div className="px-4 py-3 flex items-center justify-between border-b border-border">
             <div>
               <h1 className="text-base font-semibold text-foreground">Notifications</h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {unreadCount} unread
-              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">{unreadCount} unread</p>
             </div>
             <button
               onClick={markAllRead}

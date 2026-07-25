@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageShell } from "@/components/layout/PageShell";
 import { LeftSidebar } from "@/components/sidebar/LeftSidebar";
-import { Feed } from "@/components/feed/Feed";
-import { RightSidebar } from "@/components/sidebar/RightSidebar";
+import { RenderHomeSlot } from "@/components/personalization/RenderHomeSlot";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -33,10 +32,10 @@ function Index() {
           <LeftSidebar />
         </div>
         <div>
-          <Feed />
+          <RenderHomeSlot slot="homeMain" />
         </div>
         <div className="hidden lg:block">
-          <RightSidebar />
+          <RenderHomeSlot slot="homeRightRail" />
         </div>
       </main>
     </PageShell>
