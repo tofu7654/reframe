@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as NetworkRouteImport } from './routes/network'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
 import { Route as MessagingIndexRouteImport } from './routes/messaging.index'
@@ -21,6 +23,16 @@ import { Route as JobsJobIdApplyRouteImport } from './routes/jobs.$jobId.apply'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NetworkRoute = NetworkRouteImport.update({
+  id: '/network',
+  path: '/network',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -61,6 +73,8 @@ const JobsJobIdApplyRoute = JobsJobIdApplyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/network': typeof NetworkRoute
+  '/notifications': typeof NotificationsRoute
   '/search': typeof SearchRoute
   '/messaging/$personId': typeof MessagingPersonIdRoute
   '/profile/$personId': typeof ProfilePersonIdRoute
@@ -71,6 +85,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/network': typeof NetworkRoute
+  '/notifications': typeof NotificationsRoute
   '/search': typeof SearchRoute
   '/messaging/$personId': typeof MessagingPersonIdRoute
   '/profile/$personId': typeof ProfilePersonIdRoute
@@ -82,6 +98,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/network': typeof NetworkRoute
+  '/notifications': typeof NotificationsRoute
   '/search': typeof SearchRoute
   '/messaging/$personId': typeof MessagingPersonIdRoute
   '/profile/$personId': typeof ProfilePersonIdRoute
@@ -94,6 +112,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/network'
+    | '/notifications'
     | '/search'
     | '/messaging/$personId'
     | '/profile/$personId'
@@ -104,6 +124,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/network'
+    | '/notifications'
     | '/search'
     | '/messaging/$personId'
     | '/profile/$personId'
@@ -114,6 +136,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/network'
+    | '/notifications'
     | '/search'
     | '/messaging/$personId'
     | '/profile/$personId'
@@ -125,6 +149,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  NetworkRoute: typeof NetworkRoute
+  NotificationsRoute: typeof NotificationsRoute
   SearchRoute: typeof SearchRoute
   MessagingPersonIdRoute: typeof MessagingPersonIdRoute
   ProfilePersonIdRoute: typeof ProfilePersonIdRoute
@@ -141,6 +167,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/network': {
+      id: '/network'
+      path: '/network'
+      fullPath: '/network'
+      preLoaderRoute: typeof NetworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -197,6 +237,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  NetworkRoute: NetworkRoute,
+  NotificationsRoute: NotificationsRoute,
   SearchRoute: SearchRoute,
   MessagingPersonIdRoute: MessagingPersonIdRoute,
   ProfilePersonIdRoute: ProfilePersonIdRoute,

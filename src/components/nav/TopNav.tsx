@@ -26,14 +26,15 @@ export function TopNav() {
         <nav className="flex items-stretch h-14">
           {manifest.navigation.map((navItemId) => {
             const item = NAV_REGISTRY[navItemId];
+            const active = isActive(item.to);
             return (
               <NavItem
                 key={navItemId}
                 icon={item.icon}
                 label={item.label}
                 to={item.to}
-                active={isActive(item.to)}
-                badge={item.badge}
+                active={active}
+                badge={active ? undefined : item.badge}
               />
             );
           })}
