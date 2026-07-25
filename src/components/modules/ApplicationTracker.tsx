@@ -4,14 +4,32 @@ import { ArrowRight, CheckCircle2, ClipboardList, Clock3 } from "lucide-react";
 import type { ApplicationStatus, TrackedApplication } from "@/tracking/applicationStatus";
 import { getTrackedApplications } from "@/tracking/applicationStatus";
 import { LocalEventStore } from "@/tracking/eventStore";
+import { usePreviewMode } from "@/personalization/PreviewModeContext";
+import type { AnalyticsEvent } from "@/contracts/events";
 
 export function ApplicationTracker() {
   const [applications, setApplications] = useState<TrackedApplication[]>([]);
+  const previewMode = usePreviewMode();
 
   useEffect(() => {
-    const events = new LocalEventStore(window.localStorage).read();
+    const events = previewMode
+      ? ([
+          {
+            id: "preview-started",
+            type: "job_application_started",
+            occurredAt: "2026-07-25T12:00:00.000Z",
+            targetId: "sre-amazon",
+          },
+          {
+            id: "preview-submitted",
+            type: "job_application_submitted",
+            occurredAt: "2026-07-24T12:00:00.000Z",
+            targetId: "platform-stripe",
+          },
+        ] satisfies AnalyticsEvent[])
+      : new LocalEventStore(window.localStorage).read();
     setApplications(getTrackedApplications(events));
-  }, []);
+  }, [previewMode]);
 
   const unfinishedCount = applications.filter(
     (application) => application.status === "unfinished",

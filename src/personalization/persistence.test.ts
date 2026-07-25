@@ -3,6 +3,7 @@ import { DEFAULT_MANIFEST } from "@/registry/catalog";
 import type { Recommendation } from "@/contracts/personalization";
 import {
   acceptRecommendation,
+  applyApprovedManifest,
   createDefaultPersonalizationState,
   dismissRecommendation,
   loadPersonalizationState,
@@ -139,6 +140,35 @@ describe("personalization persistence", () => {
     ]);
   });
 
+  it("moves Saved Jobs from the main feed to the left rail for a legacy command center", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(
+      "reframe.personalization",
+      JSON.stringify({
+        schemaVersion: 1,
+        state: {
+          manifest: {
+            schemaVersion: 3,
+            revision: 3,
+            navigation: ["home", "jobs", "network", "messaging", "notifications"],
+            slots: {
+              homeMain: ["jobDiscoveryHub", "savedJobs", "feed"],
+              homeRightRail: ["rightSidebar"],
+              jobsMain: ["applicationTracker"],
+            },
+          },
+          history: [],
+          suppressedRecommendationIds: [],
+        },
+      }),
+    );
+
+    const state = loadPersonalizationState(storage);
+
+    expect(state.manifest.slots.homeLeftRail).toEqual(["savedJobs"]);
+    expect(state.manifest.slots.homeMain).toEqual(["jobDiscoveryHub", "feed"]);
+  });
+
   it("accepts a recommendation and saves the previous manifest", () => {
     const result = acceptRecommendation(
       createDefaultPersonalizationState(),
@@ -148,6 +178,27 @@ describe("personalization persistence", () => {
     expect(result.ok).toBe(true);
     expect(result.state.manifest.slots.homeMain).toContain("savedJobs");
     expect(result.state.history).toEqual([DEFAULT_MANIFEST]);
+  });
+
+  it("applies an approved manifest to every declared surface and keeps undo history", () => {
+    const state = createDefaultPersonalizationState();
+    const applied = applyApprovedManifest(state, {
+      ...DEFAULT_MANIFEST,
+      navigation: ["home", "jobs", "network", "messaging", "notifications"],
+      slots: {
+        homeLeftRail: ["savedJobs"],
+        homeMain: ["jobDiscoveryHub", "feed"],
+        homeRightRail: ["rightSidebar"],
+        jobsMain: ["applicationTracker"],
+      },
+    });
+
+    expect(applied.manifest.slots.homeLeftRail).toEqual(["savedJobs"]);
+    expect(applied.manifest.slots.homeMain[0]).toBe("jobDiscoveryHub");
+    expect(applied.manifest.slots.jobsMain).toEqual(["applicationTracker"]);
+    expect(applied.manifest.navigation.slice(0, 2)).toEqual(["home", "jobs"]);
+    expect(applied.manifest.revision).toBe(1);
+    expect(applied.history).toEqual([DEFAULT_MANIFEST]);
   });
 
   it("rejects a stale recommendation without changing state", () => {

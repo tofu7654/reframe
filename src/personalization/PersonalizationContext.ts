@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import type { AnalyticsEventType } from "@/contracts/events";
 import type { Recommendation, RecommendationId, UIManifest } from "@/contracts/personalization";
+import type { ManifestPresetId } from "./manifestPresets";
 
 export interface PersonalizationContextValue {
   manifest: UIManifest;
@@ -10,6 +11,7 @@ export interface PersonalizationContextValue {
   recordEvent(type: AnalyticsEventType, targetId?: string): void;
   trackEvent(type: AnalyticsEventType, targetId?: string): void;
   seedScenario(type: AnalyticsEventType, count: number, targetId?: string): void;
+  applyManifestPreset(presetId: ManifestPresetId): boolean;
   acceptActiveRecommendation(): boolean;
   dismissActiveRecommendation(): void;
   revert(): void;

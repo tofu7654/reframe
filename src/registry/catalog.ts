@@ -7,7 +7,18 @@ import {
 } from "@/contracts/personalization";
 
 export const ALLOWED_COMPONENTS_BY_SLOT: Record<SlotId, readonly ComponentId[]> = {
-  homeMain: ["feed", "savedJobs", "postEngagers"],
+  homeLeftRail: ["savedJobs"],
+  homeMain: [
+    "feed",
+    "savedJobs",
+    "postEngagers",
+    "candidateResearchQueue",
+    "jobDiscoveryHub",
+    "creatorCommandCenter",
+    "talentPipeline",
+    "applicationTracker",
+    "appliedCompanyConnections",
+  ],
   homeRightRail: ["rightSidebar"],
   jobsMain: ["applicationTracker", "appliedCompanyConnections"],
 };
@@ -25,6 +36,7 @@ export const DEFAULT_MANIFEST: UIManifest = {
   revision: 0,
   navigation: [...NAV_ITEM_IDS],
   slots: {
+    homeLeftRail: [],
     homeMain: ["feed"],
     homeRightRail: ["rightSidebar"],
     jobsMain: [],

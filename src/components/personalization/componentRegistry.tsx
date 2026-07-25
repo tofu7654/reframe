@@ -6,6 +6,10 @@ import { SavedJobs } from "@/components/modules/SavedJobs";
 import { ApplicationTracker } from "@/components/modules/ApplicationTracker";
 import { AppliedCompanyConnections } from "@/components/modules/AppliedCompanyConnections";
 import { PostEngagers } from "@/components/modules/PostEngagers";
+import { CandidateResearchQueue } from "@/components/modules/CandidateResearchQueue";
+import { JobDiscoveryHub } from "@/components/modules/JobDiscoveryHub";
+import { CreatorCommandCenter } from "@/components/modules/CreatorCommandCenter";
+import { TalentPipeline } from "@/components/modules/TalentPipeline";
 
 export const COMPONENT_REGISTRY: Record<ComponentId, ComponentType> = {
   feed: Feed,
@@ -14,4 +18,8 @@ export const COMPONENT_REGISTRY: Record<ComponentId, ComponentType> = {
   applicationTracker: ApplicationTracker,
   appliedCompanyConnections: AppliedCompanyConnections,
   postEngagers: PostEngagers,
+  candidateResearchQueue: CandidateResearchQueue,
+  jobDiscoveryHub: JobDiscoveryHub,
+  creatorCommandCenter: CreatorCommandCenter,
+  talentPipeline: TalentPipeline,
 };
