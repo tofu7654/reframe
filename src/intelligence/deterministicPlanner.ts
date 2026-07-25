@@ -2,6 +2,9 @@ import type { Recommendation, RecommendationId } from "@/contracts/personalizati
 import { getJob } from "@/lib/jobs-data";
 import type { PlannerInput, RecommendationPlanner } from "./planner";
 
+// Gemini parity contract: changes to these rules, priority, output copy,
+// operations, or generated manifest state must be mirrored in
+// geminiRulePrompt.ts, its version, and parity tests before they ship.
 const PRIORITY: RecommendationId[] = [
   "post-engagers",
   "applied-company-connections",

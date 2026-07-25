@@ -3,6 +3,9 @@ import { useRouterState } from "@tanstack/react-router";
 import type { AnalyticsEventType } from "@/contracts/events";
 import type { Recommendation } from "@/contracts/personalization";
 import { deterministicPlanner } from "@/intelligence/deterministicPlanner";
+import { createGeminiRecommendationPlanner } from "@/intelligence/geminiRecommendationPlanner";
+import { createLatestPlanRunner } from "@/intelligence/latestPlanRunner";
+import { createVerifiedPlanner, type VerifiedPlanResult } from "@/intelligence/verifiedPlanner";
 import { LocalEventStore } from "@/tracking/eventStore";
 import { RecommendationCoordinator } from "@/tracking/recommendationCoordinator";
 import {
@@ -21,16 +24,29 @@ import { RecommendationOverlay } from "@/components/recommendations/Recommendati
 import { DevelopmentPanel } from "@/components/development/DevelopmentPanel";
 import { Toaster } from "@/components/ui/sonner";
 
+const verifiedPlanner = createVerifiedPlanner(
+  createGeminiRecommendationPlanner({
+    apiKey: import.meta.env.GEMINI_API_KEY,
+    model: import.meta.env.VITE_GEMINI_MODEL,
+  }),
+  deterministicPlanner,
+);
+
 export function PersonalizationProvider({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (routerState) => routerState.location.pathname });
   const [personalizationState, setPersonalizationState] = useState(
     createDefaultPersonalizationState,
   );
   const [activeRecommendation, setActiveRecommendation] = useState<Recommendation | null>(null);
+  const [isPlanningRecommendation, setIsPlanningRecommendation] = useState(false);
+  const [latestPlannerComparison, setLatestPlannerComparison] = useState<VerifiedPlanResult | null>(
+    null,
+  );
   const stateRef = useRef(personalizationState);
   const activeRecommendationRef = useRef(activeRecommendation);
   const eventStoreRef = useRef<LocalEventStore | null>(null);
   const coordinatorRef = useRef<RecommendationCoordinator | null>(null);
+  const latestPlanRunnerRef = useRef(createLatestPlanRunner());
   const lastTrackedJobsPathRef = useRef<string | null>(null);
 
   const updateState = useCallback((nextState: PersonalizationState) => {
@@ -50,37 +66,48 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     coordinatorRef.current?.record("recommendation_shown", recommendation.id);
   }, []);
 
+  const evaluateRecommendation = useCallback(() => {
+    const coordinator = coordinatorRef.current;
+    if (!coordinator) return;
+    const state = stateRef.current;
+    setIsPlanningRecommendation(true);
+    void latestPlanRunnerRef.current
+      .run(() =>
+        verifiedPlanner.plan(
+          coordinator.getPlannerInput(state.manifest, state.suppressedRecommendationIds),
+        ),
+      )
+      .then(({ value, isLatest }) => {
+        if (!isLatest) return;
+        setIsPlanningRecommendation(false);
+        setLatestPlannerComparison(value);
+        showRecommendation(value.finalRecommendation);
+      })
+      .catch(() => {
+        setIsPlanningRecommendation(false);
+      });
+  }, [showRecommendation]);
+
   const trackEvent = useCallback(
     (type: AnalyticsEventType, targetId?: string) => {
       const coordinator = coordinatorRef.current;
       if (!coordinator) return;
-      const state = stateRef.current;
-      const recommendation = coordinator.recordAndEvaluate(
-        type,
-        state.manifest,
-        state.suppressedRecommendationIds,
-        targetId,
-      );
-      showRecommendation(recommendation);
+      coordinator.record(type, undefined, targetId);
+      evaluateRecommendation();
     },
-    [showRecommendation],
+    [evaluateRecommendation],
   );
 
   const seedScenario = useCallback(
     (type: AnalyticsEventType, count: number, targetId?: string) => {
       const coordinator = coordinatorRef.current;
       if (!coordinator) return;
-      const state = stateRef.current;
-      const recommendation = coordinator.seedAndEvaluate(
-        type,
-        count,
-        state.manifest,
-        state.suppressedRecommendationIds,
-        targetId,
-      );
-      showRecommendation(recommendation);
+      for (let index = 0; index < count; index += 1) {
+        coordinator.record(type, undefined, targetId);
+      }
+      evaluateRecommendation();
     },
-    [showRecommendation],
+    [evaluateRecommendation],
   );
 
   const acceptActiveRecommendation = useCallback(() => {
@@ -121,6 +148,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
   }, [updateState]);
 
   const resetAll = useCallback(() => {
+    latestPlanRunnerRef.current.invalidate();
     eventStoreRef.current?.clear();
     try {
       clearPersonalizationState(window.localStorage);
@@ -132,6 +160,8 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     setPersonalizationState(defaultState);
     activeRecommendationRef.current = null;
     setActiveRecommendation(null);
+    setIsPlanningRecommendation(false);
+    setLatestPlannerComparison(null);
   }, []);
 
   useEffect(() => {
@@ -156,6 +186,8 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
       activeRecommendation,
       suppressedRecommendationIds: personalizationState.suppressedRecommendationIds,
       canRevert: personalizationState.history.length > 0,
+      isPlanningRecommendation,
+      latestPlannerComparison,
       trackEvent,
       seedScenario,
       acceptActiveRecommendation,
@@ -167,6 +199,8 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     [
       personalizationState,
       activeRecommendation,
+      isPlanningRecommendation,
+      latestPlannerComparison,
       trackEvent,
       seedScenario,
       acceptActiveRecommendation,

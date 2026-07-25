@@ -69,6 +69,37 @@ describe("RecommendationCoordinator", () => {
     expect(store.events).toHaveLength(1);
   });
 
+  it("builds one stable planner input from the stored events", () => {
+    const store = new MemoryEventStore();
+    const coordinator = new RecommendationCoordinator(store, deterministicPlanner, {
+      createId: () => "event-1",
+      now: () => "2026-01-01T00:00:00.000Z",
+    });
+
+    coordinator.record("job_saved");
+
+    expect(coordinator.getPlannerInput(DEFAULT_MANIFEST, ["application-tracker"])).toEqual({
+      summary: {
+        counts: {
+          job_saved: 1,
+          job_application_submitted: 0,
+          jobs_route_visited: 0,
+          post_published: 0,
+          post_engagement_received: 0,
+          recommendation_shown: 0,
+          recommendation_accepted: 0,
+          recommendation_dismissed: 0,
+          manifest_applied: 0,
+          manifest_reverted: 0,
+          manifest_restored: 0,
+        },
+        latestTargetIds: {},
+      },
+      manifest: DEFAULT_MANIFEST,
+      suppressedRecommendationIds: ["application-tracker"],
+    });
+  });
+
   it("seeds a scenario and evaluates once after all events are stored", () => {
     const store = new MemoryEventStore();
     let eventId = 0;

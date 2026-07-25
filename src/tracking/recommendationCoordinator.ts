@@ -1,6 +1,7 @@
 import type { AnalyticsEvent, AnalyticsEventType } from "@/contracts/events";
 import type { Recommendation, RecommendationId, UIManifest } from "@/contracts/personalization";
 import type { RecommendationPlanner } from "@/intelligence/planner";
+import type { PlannerInput } from "@/intelligence/planner";
 import { summarizeEvents } from "./summarizeEvents";
 import type { EventStore } from "./eventStore";
 
@@ -66,10 +67,17 @@ export class RecommendationCoordinator {
     manifest: UIManifest,
     suppressedRecommendationIds: readonly RecommendationId[],
   ): Recommendation | null {
-    return this.planner.plan({
+    return this.planner.plan(this.getPlannerInput(manifest, suppressedRecommendationIds));
+  }
+
+  getPlannerInput(
+    manifest: UIManifest,
+    suppressedRecommendationIds: readonly RecommendationId[],
+  ): PlannerInput {
+    return {
       summary: summarizeEvents(this.eventStore.read()),
       manifest,
       suppressedRecommendationIds,
-    });
+    };
   }
 }

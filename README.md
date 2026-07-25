@@ -21,6 +21,18 @@ npm i
 npm run dev
 ```
 
+## Gemini rule-match demo
+
+The app uses the official `@google/genai` SDK in the browser and waits up to
+five seconds for Gemini before comparing its structured recommendation with the
+deterministic planner. Rules remain the fallback for every mismatch or SDK
+failure.
+
+Copy `.env.example` to `.env.local` and set `GEMINI_API_KEY` for this
+browser-only demo. It is bundled into the client, so restrict it to this app's
+allowed web origins and do not reuse a private server key. `VITE_GEMINI_MODEL`
+is optional and defaults to `gemini-3.5-flash-lite`.
+
 ## Built with
 
 - TanStack Start
