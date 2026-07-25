@@ -8,7 +8,7 @@ export function LeftSidebar() {
         <div className="px-4 pb-4 -mt-8 text-center">
           <div className="h-16 w-16 rounded-full bg-muted border-4 border-card mx-auto" />
           <h2 className="mt-2 font-semibold text-base hover:underline cursor-pointer">
-            Alex Morgan
+            Mohamed Salah
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
             Senior Software Engineer @ Northwind
