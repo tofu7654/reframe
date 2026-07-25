@@ -24,7 +24,7 @@ export const Route = createFileRoute("/jobs/$jobId/")({
 });
 
 function JobDetail() {
-  const { job } = Route.useLoaderData();
+  const { job } = Route.useLoaderData() as { job: Job };
   return (
     <div className="min-h-screen bg-background">
       <TopNav />
