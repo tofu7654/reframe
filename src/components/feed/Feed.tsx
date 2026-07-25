@@ -5,8 +5,10 @@ import { PostComposer } from "./PostComposer";
 import { PremiumPromo } from "./PremiumPromo";
 import { FeedSortBar } from "./FeedSortBar";
 import { INITIAL_POSTS, type PostData } from "@/lib/posts-data";
+import { usePersonalization } from "@/personalization/PersonalizationContext";
 
 export function Feed() {
+  const { trackEvent } = usePersonalization();
   const [posts, setPosts] = useState<PostData[]>(INITIAL_POSTS);
   const [composerOpen, setComposerOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<string | undefined>(undefined);
@@ -19,11 +21,13 @@ export function Feed() {
       time: "now",
       content,
       imageUrl,
-      reactions: 0,
-      comments: 0,
+      reactions: 18,
+      comments: 4,
     };
     setPosts((p) => [newPost, ...p]);
     setPendingImage(undefined);
+    trackEvent("post_published", newPost.id);
+    trackEvent("post_engagement_received", newPost.id);
   };
 
   return (

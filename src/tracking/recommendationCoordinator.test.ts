@@ -37,6 +37,24 @@ describe("RecommendationCoordinator", () => {
     ]);
   });
 
+  it("preserves a minimal target ID for targeted recommendations", () => {
+    const store = new MemoryEventStore();
+    const coordinator = new RecommendationCoordinator(store, deterministicPlanner, {
+      createId: () => "event-1",
+      now: () => "2026-01-01T00:00:00.000Z",
+    });
+
+    const recommendation = coordinator.recordAndEvaluate(
+      "job_application_submitted",
+      DEFAULT_MANIFEST,
+      [],
+      "platform-stripe",
+    );
+
+    expect(store.events[0]?.targetId).toBe("platform-stripe");
+    expect(recommendation?.id).toBe("applied-company-connections");
+  });
+
   it("does not record events when evaluation is repeated", () => {
     const store = new MemoryEventStore();
     const coordinator = new RecommendationCoordinator(store, deterministicPlanner, {

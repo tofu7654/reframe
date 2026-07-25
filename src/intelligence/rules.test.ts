@@ -13,6 +13,41 @@ function events(type: AnalyticsEvent["type"], count: number): AnalyticsEvent[] {
 }
 
 describe("deterministicPlanner", () => {
+  it("recommends connecting with post engagers after public engagement", () => {
+    const recommendation = deterministicPlanner.plan({
+      summary: summarizeEvents([
+        {
+          id: "engagement-1",
+          type: "post_engagement_received",
+          occurredAt: new Date(0).toISOString(),
+          targetId: "post-1",
+        },
+      ]),
+      manifest: DEFAULT_MANIFEST,
+      suppressedRecommendationIds: [],
+    });
+
+    expect(recommendation?.id).toBe("post-engagers");
+  });
+
+  it("recommends company connections after an application with job context", () => {
+    const recommendation = deterministicPlanner.plan({
+      summary: summarizeEvents([
+        {
+          id: "application-1",
+          type: "job_application_submitted",
+          occurredAt: new Date(0).toISOString(),
+          targetId: "platform-stripe",
+        },
+      ]),
+      manifest: DEFAULT_MANIFEST,
+      suppressedRecommendationIds: [],
+    });
+
+    expect(recommendation?.id).toBe("applied-company-connections");
+    expect(recommendation?.title).toContain("Stripe");
+  });
+
   it("prioritizes an application tracker recommendation", () => {
     const summary = summarizeEvents([
       ...events("job_saved", 3),

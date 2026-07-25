@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "build:node": "NITRO_PRESET=node-server vite build",
     "build:dev": "vite build --mode development",
-    "preview": "vite preview",
+    "preview": "npm run build:node && npm run start",
+    "start": "node .output/server/index.mjs",
     "test": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write ."

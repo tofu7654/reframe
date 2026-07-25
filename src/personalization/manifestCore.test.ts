@@ -4,6 +4,50 @@ import { applyRecommendation } from "./manifestCore";
 import type { Recommendation } from "@/contracts/personalization";
 
 describe("applyRecommendation", () => {
+  it("adds post engagers to the approved Home slot", () => {
+    const recommendation: Recommendation = {
+      id: "post-engagers",
+      expectedManifestRevision: 0,
+      title: "Connect with people engaging with your post",
+      description: "Add recent public engagers to your home page.",
+      operations: [
+        {
+          type: "add_module",
+          slot: "homeMain",
+          componentId: "postEngagers",
+          index: 0,
+        },
+      ],
+    };
+
+    const result = applyRecommendation(DEFAULT_MANIFEST, recommendation);
+
+    expect(result.ok).toBe(true);
+    expect(result.manifest.slots.homeMain).toEqual(["postEngagers", "feed"]);
+  });
+
+  it("adds applied-company connections to the approved Home slot", () => {
+    const recommendation: Recommendation = {
+      id: "applied-company-connections",
+      expectedManifestRevision: 0,
+      title: "Meet people at Stripe",
+      description: "Add relevant employees and mutual connections to your home page.",
+      operations: [
+        {
+          type: "add_module",
+          slot: "homeMain",
+          componentId: "appliedCompanyConnections",
+          index: 0,
+        },
+      ],
+    };
+
+    const result = applyRecommendation(DEFAULT_MANIFEST, recommendation);
+
+    expect(result.ok).toBe(true);
+    expect(result.manifest.slots.homeMain).toEqual(["appliedCompanyConnections", "feed"]);
+  });
+
   it("adds an approved module atomically", () => {
     const recommendation: Recommendation = {
       id: "application-tracker",
