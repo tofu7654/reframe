@@ -51,7 +51,7 @@ export function TopNav() {
       <div className="max-w-[1128px] mx-auto flex items-center h-13 px-4 gap-2">
         <div className="flex items-center gap-2 flex-1">
           <Link to="/" className="h-8 w-8 rounded bg-brand text-brand-foreground flex items-center justify-center font-bold text-lg">
-            Lo
+            out
           </Link>
           <div className="relative flex-1 max-w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
