@@ -103,7 +103,8 @@ function buildCandidates(input: PlannerInput): Map<RecommendationId, Recommendat
   if (
     input.summary.counts.job_saved >= 3 &&
     !suppressed.has("saved-jobs") &&
-    !input.manifest.slots.homeMain.includes("savedJobs")
+    !input.manifest.slots.homeMain.includes("savedJobs") &&
+    !input.manifest.slots.homeLeftRail.includes("savedJobs")
   ) {
     candidates.set("saved-jobs", {
       id: "saved-jobs",

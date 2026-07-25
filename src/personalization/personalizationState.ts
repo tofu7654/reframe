@@ -92,6 +92,22 @@ export function acceptRecommendation(
   };
 }
 
+export function applyApprovedManifest(
+  state: PersonalizationState,
+  manifest: UIManifest,
+): PersonalizationState {
+  if (!isValidManifest(manifest)) return state;
+
+  return {
+    ...state,
+    manifest: {
+      ...structuredClone(manifest),
+      revision: state.manifest.revision + 1,
+    },
+    history: [...state.history, structuredClone(state.manifest)].slice(-HISTORY_LIMIT),
+  };
+}
+
 export function dismissRecommendation(
   state: PersonalizationState,
   recommendationId: RecommendationId,
@@ -185,7 +201,7 @@ function migrateLegacyManifestSlots(value: unknown): unknown {
 function migrateLegacyManifest(value: unknown): unknown {
   if (
     !isRecord(value) ||
-    (value.schemaVersion !== 1 && value.schemaVersion !== 2) ||
+    (value.schemaVersion !== 1 && value.schemaVersion !== 2 && value.schemaVersion !== 3) ||
     !isRecord(value.slots) ||
     !Array.isArray(value.slots.homeMain) ||
     !Array.isArray(value.slots.homeRightRail)
@@ -195,6 +211,13 @@ function migrateLegacyManifest(value: unknown): unknown {
 
   const appliedCompanyConnections = value.slots.homeMain.includes("appliedCompanyConnections");
   const applicationTracker = value.slots.homeRightRail.includes("applicationTracker");
+  const moveSavedJobsToLeftRail =
+    value.schemaVersion === 3 &&
+    value.slots.homeMain.includes("jobDiscoveryHub") &&
+    value.slots.homeMain.includes("savedJobs");
+  const existingHomeLeftRail = Array.isArray(value.slots.homeLeftRail)
+    ? value.slots.homeLeftRail
+    : [];
   const existingJobsMain = Array.isArray(value.slots.jobsMain) ? value.slots.jobsMain : [];
   const jobsMain = [
     ...(applicationTracker ? ["applicationTracker"] : []),
@@ -209,8 +232,13 @@ function migrateLegacyManifest(value: unknown): unknown {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
     slots: {
       ...value.slots,
+      homeLeftRail: moveSavedJobsToLeftRail
+        ? [...new Set([...existingHomeLeftRail, "savedJobs"])]
+        : existingHomeLeftRail,
       homeMain: value.slots.homeMain.filter(
-        (componentId) => componentId !== "appliedCompanyConnections",
+        (componentId) =>
+          componentId !== "appliedCompanyConnections" &&
+          !(moveSavedJobsToLeftRail && componentId === "savedJobs"),
       ),
       homeRightRail: value.slots.homeRightRail.filter(
         (componentId) => componentId !== "applicationTracker",

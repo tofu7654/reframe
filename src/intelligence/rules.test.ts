@@ -106,6 +106,22 @@ describe("deterministicPlanner", () => {
     expect(recommendation?.id).toBe("saved-jobs");
   });
 
+  it("does not duplicate Saved Jobs when a manifest already placed it in the left rail", () => {
+    const recommendation = deterministicPlanner.plan({
+      summary: summarizeEvents(events("job_saved", 3)),
+      manifest: {
+        ...DEFAULT_MANIFEST,
+        slots: {
+          ...DEFAULT_MANIFEST.slots,
+          homeLeftRail: ["savedJobs"],
+        },
+      },
+      suppressedRecommendationIds: ["application-tracker"],
+    });
+
+    expect(recommendation).toBeNull();
+  });
+
   it("recommends promoting Jobs after three route visits", () => {
     const recommendation = deterministicPlanner.plan({
       summary: summarizeEvents(events("jobs_route_visited", 3)),

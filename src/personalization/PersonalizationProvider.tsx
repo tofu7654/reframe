@@ -10,6 +10,7 @@ import { LocalEventStore } from "@/tracking/eventStore";
 import { RecommendationCoordinator } from "@/tracking/recommendationCoordinator";
 import {
   acceptRecommendation,
+  applyApprovedManifest,
   clearPersonalizationState,
   createDefaultPersonalizationState,
   dismissRecommendation,
@@ -20,6 +21,7 @@ import {
   type PersonalizationState,
 } from "./personalizationState";
 import { PersonalizationContext, type PersonalizationContextValue } from "./PersonalizationContext";
+import { getManifestPreset, type ManifestPresetId } from "./manifestPresets";
 import { RecommendationOverlay } from "@/components/recommendations/RecommendationOverlay";
 import { DevelopmentPanel } from "@/components/development/DevelopmentPanel";
 import { Toaster } from "@/components/ui/sonner";
@@ -134,6 +136,23 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     return true;
   }, [updateState]);
 
+  const applyManifestPreset = useCallback(
+    (presetId: ManifestPresetId) => {
+      const nextState = applyApprovedManifest(
+        stateRef.current,
+        getManifestPreset(presetId).manifest,
+      );
+      if (nextState === stateRef.current) return false;
+
+      updateState(nextState);
+      activeRecommendationRef.current = null;
+      setActiveRecommendation(null);
+      coordinatorRef.current?.record("manifest_applied");
+      return true;
+    },
+    [updateState],
+  );
+
   const dismissActiveRecommendation = useCallback(() => {
     const recommendation = activeRecommendationRef.current;
     if (!recommendation) return;
@@ -207,6 +226,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
       recordEvent,
       trackEvent,
       seedScenario,
+      applyManifestPreset,
       acceptActiveRecommendation,
       dismissActiveRecommendation,
       revert,
@@ -221,6 +241,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
       recordEvent,
       trackEvent,
       seedScenario,
+      applyManifestPreset,
       acceptActiveRecommendation,
       dismissActiveRecommendation,
       revert,

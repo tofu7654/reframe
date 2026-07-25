@@ -28,22 +28,22 @@ describe("isValidManifest", () => {
       ...DEFAULT_MANIFEST,
       slots: {
         ...DEFAULT_MANIFEST.slots,
-        homeMain: ["applicationTracker"],
+        homeRightRail: ["candidateResearchQueue"],
       },
     };
 
     expect(isValidManifest(manifest)).toBe(false);
   });
 
-  it("only allows applied-company connections on the Jobs page", () => {
+  it("allows an application-focused workspace on Home", () => {
     const manifest = {
       ...DEFAULT_MANIFEST,
       slots: {
         ...DEFAULT_MANIFEST.slots,
-        homeMain: ["appliedCompanyConnections"],
+        homeMain: ["applicationTracker", "appliedCompanyConnections", "feed"],
       },
     };
 
-    expect(isValidManifest(manifest)).toBe(false);
+    expect(isValidManifest(manifest)).toBe(true);
   });
 });

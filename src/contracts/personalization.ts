@@ -1,4 +1,4 @@
-export const MANIFEST_SCHEMA_VERSION = 3;
+export const MANIFEST_SCHEMA_VERSION = 4;
 
 export type ComponentId =
   | "feed"
@@ -6,9 +6,13 @@ export type ComponentId =
   | "rightSidebar"
   | "applicationTracker"
   | "appliedCompanyConnections"
-  | "postEngagers";
+  | "postEngagers"
+  | "candidateResearchQueue"
+  | "jobDiscoveryHub"
+  | "creatorCommandCenter"
+  | "talentPipeline";
 
-export type HomeSlotId = "homeMain" | "homeRightRail";
+export type HomeSlotId = "homeLeftRail" | "homeMain" | "homeRightRail";
 export type JobsSlotId = "jobsMain";
 export type SlotId = HomeSlotId | JobsSlotId;
 

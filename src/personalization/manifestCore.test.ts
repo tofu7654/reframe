@@ -102,7 +102,7 @@ describe("applyRecommendation", () => {
       operations: [
         {
           type: "add_module",
-          slot: "homeMain",
+          slot: "homeRightRail",
           componentId: "applicationTracker",
         },
       ],

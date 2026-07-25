@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Check, MessageCircle, Repeat2, ThumbsUp, UserPlus, Users } from "lucide-react";
 import { POST_ENGAGERS, type PostEngager } from "@/lib/post-engagers-data";
 import { LocalEventStore } from "@/tracking/eventStore";
+import { usePreviewMode } from "@/personalization/PreviewModeContext";
 
 const ENGAGEMENT_ICON = {
   Commented: MessageCircle,
@@ -12,11 +13,16 @@ const ENGAGEMENT_ICON = {
 export function PostEngagers() {
   const [hasEngagement, setHasEngagement] = useState(false);
   const [requested, setRequested] = useState<Record<string, boolean>>({});
+  const previewMode = usePreviewMode();
 
   useEffect(() => {
+    if (previewMode) {
+      setHasEngagement(true);
+      return;
+    }
     const events = new LocalEventStore(window.localStorage).read();
     setHasEngagement(events.some((event) => event.type === "post_engagement_received"));
-  }, []);
+  }, [previewMode]);
 
   if (!hasEngagement) return null;
 

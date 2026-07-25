@@ -30,6 +30,9 @@ function Index() {
       <main className="max-w-[1128px] mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-[225px_1fr] lg:grid-cols-[225px_1fr_300px] gap-6">
         <div className="hidden md:block">
           <LeftSidebar />
+          <div className="mt-2">
+            <RenderHomeSlot slot="homeLeftRail" />
+          </div>
         </div>
         <div>
           <RenderHomeSlot slot="homeMain" />
