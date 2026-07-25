@@ -74,7 +74,7 @@ function ProfilePage() {
 
           <Section title="Experience">
             <ul className="space-y-4">
-              {person.experience.map((e, i) => (
+              {person.experience.map((e: { title: string; company: string; years: string }, i: number) => (
                 <li key={i} className="flex gap-3">
                   <div className="h-12 w-12 rounded bg-accent shrink-0" />
                   <div>
@@ -89,7 +89,7 @@ function ProfilePage() {
 
           <Section title="Education">
             <ul className="space-y-4">
-              {person.education.map((e, i) => (
+              {person.education.map((e: { school: string; degree: string; years: string }, i: number) => (
                 <li key={i}>
                   <div className="font-semibold text-foreground">{e.school}</div>
                   <div className="text-sm text-foreground">{e.degree}</div>
@@ -101,7 +101,7 @@ function ProfilePage() {
 
           <Section title="Skills">
             <div className="flex flex-wrap gap-2">
-              {person.skills.map((s) => (
+              {person.skills.map((s: string) => (
                 <span key={s} className="px-3 py-1 rounded-full bg-accent text-sm">
                   {s}
                 </span>
