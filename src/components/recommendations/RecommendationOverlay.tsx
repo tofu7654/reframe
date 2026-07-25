@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { toast } from "sonner";
-import { Sparkles, X } from "lucide-react";
+import { Eye, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePersonalization } from "@/personalization/PersonalizationContext";
+import { RecommendationPreviewDialog } from "./RecommendationPreviewDialog";
 
 export function RecommendationOverlay() {
+  const [previewOpen, setPreviewOpen] = useState(false);
   const { activeRecommendation, acceptActiveRecommendation, dismissActiveRecommendation, revert } =
     usePersonalization();
 
@@ -13,6 +16,11 @@ export function RecommendationOverlay() {
     if (!acceptActiveRecommendation()) return;
     toast("Personalization updated", {
       description: activeRecommendation.description,
+      closeButton: true,
+      cancel: {
+        label: "Keep changes",
+        onClick: () => {},
+      },
       action: {
         label: "Revert",
         onClick: revert,
@@ -51,12 +59,22 @@ export function RecommendationOverlay() {
             <Button variant="ghost" size="sm" onClick={dismissActiveRecommendation}>
               Dismiss
             </Button>
+            <Button variant="outline" size="sm" onClick={() => setPreviewOpen(true)}>
+              <Eye className="h-4 w-4" />
+              Preview
+            </Button>
             <Button size="sm" onClick={accept}>
               Accept
             </Button>
           </div>
         </div>
       </div>
+      <RecommendationPreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        recommendation={activeRecommendation}
+        onAccept={accept}
+      />
     </aside>
   );
 }

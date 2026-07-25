@@ -11,6 +11,8 @@ const STORAGE_KEY = "reframe.personalization";
 const STORAGE_SCHEMA_VERSION = 1;
 const HISTORY_LIMIT = 10;
 const RECOMMENDATION_IDS: RecommendationId[] = [
+  "post-engagers",
+  "applied-company-connections",
   "application-tracker",
   "saved-jobs",
   "promote-jobs",

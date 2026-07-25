@@ -7,7 +7,7 @@ import {
 } from "@/contracts/personalization";
 
 export const ALLOWED_COMPONENTS_BY_SLOT: Record<HomeSlotId, readonly ComponentId[]> = {
-  homeMain: ["feed", "savedJobs"],
+  homeMain: ["feed", "savedJobs", "appliedCompanyConnections", "postEngagers"],
   homeRightRail: ["applicationTracker", "rightSidebar"],
 };
 

@@ -7,8 +7,8 @@ export interface PersonalizationContextValue {
   activeRecommendation: Recommendation | null;
   suppressedRecommendationIds: readonly RecommendationId[];
   canRevert: boolean;
-  trackEvent(type: AnalyticsEventType): void;
-  seedScenario(type: AnalyticsEventType, count: number): void;
+  trackEvent(type: AnalyticsEventType, targetId?: string): void;
+  seedScenario(type: AnalyticsEventType, count: number, targetId?: string): void;
   acceptActiveRecommendation(): boolean;
   dismissActiveRecommendation(): void;
   revert(): void;

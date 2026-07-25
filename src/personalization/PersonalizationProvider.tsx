@@ -51,7 +51,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
   }, []);
 
   const trackEvent = useCallback(
-    (type: AnalyticsEventType) => {
+    (type: AnalyticsEventType, targetId?: string) => {
       const coordinator = coordinatorRef.current;
       if (!coordinator) return;
       const state = stateRef.current;
@@ -59,6 +59,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
         type,
         state.manifest,
         state.suppressedRecommendationIds,
+        targetId,
       );
       showRecommendation(recommendation);
     },
@@ -66,7 +67,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
   );
 
   const seedScenario = useCallback(
-    (type: AnalyticsEventType, count: number) => {
+    (type: AnalyticsEventType, count: number, targetId?: string) => {
       const coordinator = coordinatorRef.current;
       if (!coordinator) return;
       const state = stateRef.current;
@@ -75,6 +76,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
         count,
         state.manifest,
         state.suppressedRecommendationIds,
+        targetId,
       );
       showRecommendation(recommendation);
     },
