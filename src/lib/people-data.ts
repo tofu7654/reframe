@@ -37,7 +37,31 @@ export const PEOPLE: Person[] = [
     initials: "KM",
     keywords: ["footballer", "football", "soccer", "forward", "striker", "athlete", "sports", "real madrid", "france"],
   },
+  {
+    id: "achraf-hakimi",
+    name: "Achraf Hakimi",
+    headline: "Professional Footballer at Paris Saint-Germain | Right-Back | Morocco National Team",
+    location: "Paris, Île-de-France, France",
+    about:
+      "Right-back for Paris Saint-Germain and the Morocco national team. Focused on attacking full-back play, endurance, and community initiatives across Morocco and France. Open to partnerships and mentorship opportunities.",
+    currentRole: { title: "Right-Back", company: "Paris Saint-Germain", years: "2021 - Present" },
+    experience: [
+      { title: "Right-Back", company: "Paris Saint-Germain", years: "2021 - Present" },
+      { title: "Right-Back", company: "Inter Milan", years: "2020 - 2021" },
+      { title: "Right-Back (loan)", company: "Borussia Dortmund", years: "2018 - 2020" },
+      { title: "Right-Back", company: "Real Madrid C.F.", years: "2017 - 2020" },
+    ],
+    education: [
+      { school: "Real Madrid Academy (La Fábrica)", degree: "Football Academy", years: "2011 - 2017" },
+    ],
+    skills: ["Sprint Speed", "Crossing", "Stamina", "Overlapping Runs", "Defending", "Team Play"],
+    connections: "500+",
+    mutual: 8,
+    initials: "AH",
+    keywords: ["footballer", "football", "soccer", "right-back", "defender", "fullback", "athlete", "sports", "psg", "paris saint-germain", "morocco"],
+  },
 ];
+
 
 export function searchPeople(query: string): Person[] {
   const q = query.trim().toLowerCase();
