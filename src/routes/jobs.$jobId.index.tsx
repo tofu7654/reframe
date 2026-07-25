@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Bookmark, Share2, MoreHorizontal, ExternalLink, BadgeCheck, Building2 } from "lucide-react";
 import { TopNav } from "@/components/linkedout/TopNav";
-import { getJob } from "@/lib/jobs-data";
+import { getJob, type Job } from "@/lib/jobs-data";
 
 export const Route = createFileRoute("/jobs/$jobId/")({
   loader: ({ params }) => {
