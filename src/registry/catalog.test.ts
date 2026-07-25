@@ -34,4 +34,16 @@ describe("isValidManifest", () => {
 
     expect(isValidManifest(manifest)).toBe(false);
   });
+
+  it("only allows applied-company connections on the Jobs page", () => {
+    const manifest = {
+      ...DEFAULT_MANIFEST,
+      slots: {
+        ...DEFAULT_MANIFEST.slots,
+        homeMain: ["appliedCompanyConnections"],
+      },
+    };
+
+    expect(isValidManifest(manifest)).toBe(false);
+  });
 });
