@@ -9,19 +9,43 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MessagingIndexRouteImport } from './routes/messaging.index'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
+import { Route as ProfilePersonIdRouteImport } from './routes/profile.$personId'
+import { Route as MessagingPersonIdRouteImport } from './routes/messaging.$personId'
 import { Route as JobsJobIdIndexRouteImport } from './routes/jobs.$jobId.index'
 import { Route as JobsJobIdApplyRouteImport } from './routes/jobs.$jobId.apply'
 
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MessagingIndexRoute = MessagingIndexRouteImport.update({
+  id: '/messaging/',
+  path: '/messaging/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const JobsIndexRoute = JobsIndexRouteImport.update({
   id: '/jobs/',
   path: '/jobs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfilePersonIdRoute = ProfilePersonIdRouteImport.update({
+  id: '/profile/$personId',
+  path: '/profile/$personId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagingPersonIdRoute = MessagingPersonIdRouteImport.update({
+  id: '/messaging/$personId',
+  path: '/messaging/$personId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JobsJobIdIndexRoute = JobsJobIdIndexRouteImport.update({
@@ -37,40 +61,88 @@ const JobsJobIdApplyRoute = JobsJobIdApplyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
+  '/messaging/$personId': typeof MessagingPersonIdRoute
+  '/profile/$personId': typeof ProfilePersonIdRoute
   '/jobs/': typeof JobsIndexRoute
+  '/messaging/': typeof MessagingIndexRoute
   '/jobs/$jobId/apply': typeof JobsJobIdApplyRoute
   '/jobs/$jobId/': typeof JobsJobIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
+  '/messaging/$personId': typeof MessagingPersonIdRoute
+  '/profile/$personId': typeof ProfilePersonIdRoute
   '/jobs': typeof JobsIndexRoute
+  '/messaging': typeof MessagingIndexRoute
   '/jobs/$jobId/apply': typeof JobsJobIdApplyRoute
   '/jobs/$jobId': typeof JobsJobIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
+  '/messaging/$personId': typeof MessagingPersonIdRoute
+  '/profile/$personId': typeof ProfilePersonIdRoute
   '/jobs/': typeof JobsIndexRoute
+  '/messaging/': typeof MessagingIndexRoute
   '/jobs/$jobId/apply': typeof JobsJobIdApplyRoute
   '/jobs/$jobId/': typeof JobsJobIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/jobs/' | '/jobs/$jobId/apply' | '/jobs/$jobId/'
+  fullPaths:
+    | '/'
+    | '/search'
+    | '/messaging/$personId'
+    | '/profile/$personId'
+    | '/jobs/'
+    | '/messaging/'
+    | '/jobs/$jobId/apply'
+    | '/jobs/$jobId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/jobs' | '/jobs/$jobId/apply' | '/jobs/$jobId'
-  id: '__root__' | '/' | '/jobs/' | '/jobs/$jobId/apply' | '/jobs/$jobId/'
+  to:
+    | '/'
+    | '/search'
+    | '/messaging/$personId'
+    | '/profile/$personId'
+    | '/jobs'
+    | '/messaging'
+    | '/jobs/$jobId/apply'
+    | '/jobs/$jobId'
+  id:
+    | '__root__'
+    | '/'
+    | '/search'
+    | '/messaging/$personId'
+    | '/profile/$personId'
+    | '/jobs/'
+    | '/messaging/'
+    | '/jobs/$jobId/apply'
+    | '/jobs/$jobId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SearchRoute: typeof SearchRoute
+  MessagingPersonIdRoute: typeof MessagingPersonIdRoute
+  ProfilePersonIdRoute: typeof ProfilePersonIdRoute
   JobsIndexRoute: typeof JobsIndexRoute
+  MessagingIndexRoute: typeof MessagingIndexRoute
   JobsJobIdApplyRoute: typeof JobsJobIdApplyRoute
   JobsJobIdIndexRoute: typeof JobsJobIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -78,11 +150,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/messaging/': {
+      id: '/messaging/'
+      path: '/messaging'
+      fullPath: '/messaging/'
+      preLoaderRoute: typeof MessagingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/jobs/': {
       id: '/jobs/'
       path: '/jobs'
       fullPath: '/jobs/'
       preLoaderRoute: typeof JobsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/$personId': {
+      id: '/profile/$personId'
+      path: '/profile/$personId'
+      fullPath: '/profile/$personId'
+      preLoaderRoute: typeof ProfilePersonIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messaging/$personId': {
+      id: '/messaging/$personId'
+      path: '/messaging/$personId'
+      fullPath: '/messaging/$personId'
+      preLoaderRoute: typeof MessagingPersonIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/jobs/$jobId/': {
@@ -104,7 +197,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SearchRoute: SearchRoute,
+  MessagingPersonIdRoute: MessagingPersonIdRoute,
+  ProfilePersonIdRoute: ProfilePersonIdRoute,
   JobsIndexRoute: JobsIndexRoute,
+  MessagingIndexRoute: MessagingIndexRoute,
   JobsJobIdApplyRoute: JobsJobIdApplyRoute,
   JobsJobIdIndexRoute: JobsJobIdIndexRoute,
 }
