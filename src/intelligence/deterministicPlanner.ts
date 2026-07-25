@@ -1,7 +1,14 @@
 import type { Recommendation, RecommendationId } from "@/contracts/personalization";
+import { getJob } from "@/lib/jobs-data";
 import type { PlannerInput, RecommendationPlanner } from "./planner";
 
-const PRIORITY: RecommendationId[] = ["application-tracker", "saved-jobs", "promote-jobs"];
+const PRIORITY: RecommendationId[] = [
+  "post-engagers",
+  "applied-company-connections",
+  "application-tracker",
+  "saved-jobs",
+  "promote-jobs",
+];
 
 export const deterministicPlanner: RecommendationPlanner = {
   plan(input) {
@@ -17,6 +24,52 @@ export const deterministicPlanner: RecommendationPlanner = {
 function buildCandidates(input: PlannerInput): Map<RecommendationId, Recommendation> {
   const candidates = new Map<RecommendationId, Recommendation>();
   const suppressed = new Set(input.suppressedRecommendationIds);
+  const engagedPostId = input.summary.latestTargetIds.post_engagement_received;
+  const appliedJobId = input.summary.latestTargetIds.job_application_submitted;
+  const appliedJob = appliedJobId ? getJob(appliedJobId) : undefined;
+
+  if (
+    engagedPostId &&
+    !suppressed.has("post-engagers") &&
+    !input.manifest.slots.homeMain.includes("postEngagers")
+  ) {
+    candidates.set("post-engagers", {
+      id: "post-engagers",
+      expectedManifestRevision: input.manifest.revision,
+      title: "Connect with people engaging with your post",
+      description:
+        "Your recent post received new engagement. Add the people joining that conversation to your home page.",
+      operations: [
+        {
+          type: "add_module",
+          slot: "homeMain",
+          componentId: "postEngagers",
+          index: 0,
+        },
+      ],
+    });
+  }
+
+  if (
+    appliedJob &&
+    !suppressed.has("applied-company-connections") &&
+    !input.manifest.slots.homeMain.includes("appliedCompanyConnections")
+  ) {
+    candidates.set("applied-company-connections", {
+      id: "applied-company-connections",
+      expectedManifestRevision: input.manifest.revision,
+      title: `Meet people at ${appliedJob.company}`,
+      description: `You applied to ${appliedJob.company}. Add relevant employees and mutual connections to your home page.`,
+      operations: [
+        {
+          type: "add_module",
+          slot: "homeMain",
+          componentId: "appliedCompanyConnections",
+          index: 0,
+        },
+      ],
+    });
+  }
 
   if (
     input.summary.counts.job_application_submitted >= 1 &&

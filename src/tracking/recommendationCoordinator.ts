@@ -27,8 +27,9 @@ export class RecommendationCoordinator {
     type: AnalyticsEventType,
     manifest: UIManifest,
     suppressedRecommendationIds: readonly RecommendationId[],
+    targetId?: string,
   ): Recommendation | null {
-    this.record(type);
+    this.record(type, undefined, targetId);
     return this.evaluate(manifest, suppressedRecommendationIds);
   }
 
@@ -37,19 +38,25 @@ export class RecommendationCoordinator {
     count: number,
     manifest: UIManifest,
     suppressedRecommendationIds: readonly RecommendationId[],
+    targetId?: string,
   ): Recommendation | null {
     for (let index = 0; index < count; index += 1) {
-      this.record(type);
+      this.record(type, undefined, targetId);
     }
     return this.evaluate(manifest, suppressedRecommendationIds);
   }
 
-  record(type: AnalyticsEventType, recommendationId?: RecommendationId): AnalyticsEvent {
+  record(
+    type: AnalyticsEventType,
+    recommendationId?: RecommendationId,
+    targetId?: string,
+  ): AnalyticsEvent {
     const event: AnalyticsEvent = {
       id: this.runtime.createId(),
       type,
       occurredAt: this.runtime.now(),
       ...(recommendationId ? { recommendationId } : {}),
+      ...(targetId ? { targetId } : {}),
     };
     this.eventStore.append(event);
     return event;

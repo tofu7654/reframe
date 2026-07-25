@@ -7,6 +7,8 @@ const EVENT_TYPES: AnalyticsEventType[] = [
   "job_saved",
   "job_application_submitted",
   "jobs_route_visited",
+  "post_published",
+  "post_engagement_received",
   "recommendation_shown",
   "recommendation_accepted",
   "recommendation_dismissed",
@@ -73,7 +75,8 @@ function isAnalyticsEvent(value: unknown): value is AnalyticsEvent {
     typeof value.id === "string" &&
     typeof value.occurredAt === "string" &&
     typeof value.type === "string" &&
-    EVENT_TYPES.includes(value.type as AnalyticsEventType)
+    EVENT_TYPES.includes(value.type as AnalyticsEventType) &&
+    (value.targetId === undefined || typeof value.targetId === "string")
   );
 }
 

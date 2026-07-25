@@ -26,7 +26,7 @@ export function DevelopmentPanel() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => seedScenario("job_application_submitted", 1)}
+            onClick={() => seedScenario("job_application_submitted", 1, "platform-stripe")}
           >
             Seed application
           </Button>
@@ -35,6 +35,13 @@ export function DevelopmentPanel() {
           </Button>
           <Button variant="outline" size="sm" onClick={() => seedScenario("jobs_route_visited", 3)}>
             Seed 3 jobs visits
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => seedScenario("post_engagement_received", 1, "demo-post")}
+          >
+            Seed post engagement
           </Button>
         </div>
         <div className="flex flex-wrap gap-2">

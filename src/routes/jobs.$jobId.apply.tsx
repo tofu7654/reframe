@@ -53,7 +53,7 @@ function ApplyPage() {
           job={job}
           onCancel={() => navigate({ to: "/jobs/$jobId", params: { jobId: job.id } })}
           onSubmit={() => {
-            trackEvent("job_application_submitted");
+            trackEvent("job_application_submitted", job.id);
             setSubmitted(true);
           }}
         />
