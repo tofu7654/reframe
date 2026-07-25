@@ -49,7 +49,7 @@ export function loadPersonalizationState(storage: Storage): PersonalizationState
   try {
     const rawValue = storage.getItem(STORAGE_KEY);
     if (!rawValue) return createDefaultPersonalizationState();
-    const envelope: unknown = JSON.parse(rawValue);
+    const envelope = migrateLegacyManifestSlots(JSON.parse(rawValue) as unknown);
     return isValidEnvelope(envelope)
       ? structuredClone(envelope.state)
       : createDefaultPersonalizationState();
@@ -158,6 +158,66 @@ function isValidEnvelope(value: unknown): value is PersonalizationEnvelope {
   }
 
   return true;
+}
+
+function migrateLegacyManifestSlots(value: unknown): unknown {
+  if (
+    !isRecord(value) ||
+    value.schemaVersion !== STORAGE_SCHEMA_VERSION ||
+    !isRecord(value.state)
+  ) {
+    return value;
+  }
+
+  const state = value.state;
+  if (!Array.isArray(state.history)) return value;
+
+  return {
+    ...value,
+    state: {
+      ...state,
+      manifest: migrateLegacyManifest(state.manifest),
+      history: state.history.map(migrateLegacyManifest),
+    },
+  };
+}
+
+function migrateLegacyManifest(value: unknown): unknown {
+  if (
+    !isRecord(value) ||
+    (value.schemaVersion !== 1 && value.schemaVersion !== 2) ||
+    !isRecord(value.slots) ||
+    !Array.isArray(value.slots.homeMain) ||
+    !Array.isArray(value.slots.homeRightRail)
+  ) {
+    return value;
+  }
+
+  const appliedCompanyConnections = value.slots.homeMain.includes("appliedCompanyConnections");
+  const applicationTracker = value.slots.homeRightRail.includes("applicationTracker");
+  const existingJobsMain = Array.isArray(value.slots.jobsMain) ? value.slots.jobsMain : [];
+  const jobsMain = [
+    ...(applicationTracker ? ["applicationTracker"] : []),
+    ...existingJobsMain.filter((componentId) => componentId !== "applicationTracker"),
+  ];
+  if (appliedCompanyConnections && !jobsMain.includes("appliedCompanyConnections")) {
+    jobsMain.push("appliedCompanyConnections");
+  }
+
+  return {
+    ...value,
+    schemaVersion: MANIFEST_SCHEMA_VERSION,
+    slots: {
+      ...value.slots,
+      homeMain: value.slots.homeMain.filter(
+        (componentId) => componentId !== "appliedCompanyConnections",
+      ),
+      homeRightRail: value.slots.homeRightRail.filter(
+        (componentId) => componentId !== "applicationTracker",
+      ),
+      jobsMain,
+    },
+  };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

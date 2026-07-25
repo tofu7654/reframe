@@ -56,17 +56,17 @@ function buildCandidates(input: PlannerInput): Map<RecommendationId, Recommendat
   if (
     appliedJob &&
     !suppressed.has("applied-company-connections") &&
-    !input.manifest.slots.homeMain.includes("appliedCompanyConnections")
+    !input.manifest.slots.jobsMain.includes("appliedCompanyConnections")
   ) {
     candidates.set("applied-company-connections", {
       id: "applied-company-connections",
       expectedManifestRevision: input.manifest.revision,
       title: `Meet people at ${appliedJob.company}`,
-      description: `You applied to ${appliedJob.company}. Add relevant employees and mutual connections to your home page.`,
+      description: `You applied to ${appliedJob.company}. Add relevant employees and mutual connections to your Jobs page.`,
       operations: [
         {
           type: "add_module",
-          slot: "homeMain",
+          slot: "jobsMain",
           componentId: "appliedCompanyConnections",
           index: 0,
         },
@@ -75,19 +75,24 @@ function buildCandidates(input: PlannerInput): Map<RecommendationId, Recommendat
   }
 
   if (
-    input.summary.counts.job_application_submitted >= 1 &&
+    (input.summary.counts.job_application_started >= 1 ||
+      input.summary.counts.job_application_submitted >= 1) &&
     !suppressed.has("application-tracker") &&
-    !input.manifest.slots.homeRightRail.includes("applicationTracker")
+    !input.manifest.slots.jobsMain.includes("applicationTracker")
   ) {
+    const unfinishedCount = input.summary.unfinishedApplicationTargetIds.length;
     candidates.set("application-tracker", {
       id: "application-tracker",
       expectedManifestRevision: input.manifest.revision,
-      title: "Add Application Tracker",
-      description: "Add Application Tracker to your home page.",
+      title: "Track your job applications",
+      description:
+        unfinishedCount > 0
+          ? `You have ${unfinishedCount} unfinished ${unfinishedCount === 1 ? "application" : "applications"}. Add a tracker to your Jobs page so you can resume where you left off.`
+          : "You recently submitted an application. Add a tracker to your Jobs page to keep your job search organized.",
       operations: [
         {
           type: "add_module",
-          slot: "homeRightRail",
+          slot: "jobsMain",
           componentId: "applicationTracker",
           index: 0,
         },

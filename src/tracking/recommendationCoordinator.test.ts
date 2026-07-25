@@ -82,6 +82,7 @@ describe("RecommendationCoordinator", () => {
       summary: {
         counts: {
           job_saved: 1,
+          job_application_started: 0,
           job_application_submitted: 0,
           jobs_route_visited: 0,
           post_published: 0,
@@ -94,6 +95,7 @@ describe("RecommendationCoordinator", () => {
           manifest_restored: 0,
         },
         latestTargetIds: {},
+        unfinishedApplicationTargetIds: [],
       },
       manifest: DEFAULT_MANIFEST,
       suppressedRecommendationIds: ["application-tracker"],

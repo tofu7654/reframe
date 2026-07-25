@@ -1,4 +1,4 @@
-export const MANIFEST_SCHEMA_VERSION = 1;
+export const MANIFEST_SCHEMA_VERSION = 3;
 
 export type ComponentId =
   | "feed"
@@ -9,6 +9,8 @@ export type ComponentId =
   | "postEngagers";
 
 export type HomeSlotId = "homeMain" | "homeRightRail";
+export type JobsSlotId = "jobsMain";
+export type SlotId = HomeSlotId | JobsSlotId;
 
 export type NavItemId = "home" | "network" | "jobs" | "messaging" | "notifications";
 
@@ -16,19 +18,19 @@ export interface UIManifest {
   schemaVersion: typeof MANIFEST_SCHEMA_VERSION;
   revision: number;
   navigation: NavItemId[];
-  slots: Record<HomeSlotId, ComponentId[]>;
+  slots: Record<SlotId, ComponentId[]>;
 }
 
 export type UIOperation =
   | {
       type: "add_module";
-      slot: HomeSlotId;
+      slot: SlotId;
       componentId: ComponentId;
       index?: number;
     }
   | {
       type: "remove_module";
-      slot: HomeSlotId;
+      slot: SlotId;
       componentId: ComponentId;
     }
   | {

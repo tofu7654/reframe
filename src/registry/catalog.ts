@@ -1,14 +1,15 @@
 import {
   MANIFEST_SCHEMA_VERSION,
   type ComponentId,
-  type HomeSlotId,
   type NavItemId,
+  type SlotId,
   type UIManifest,
 } from "@/contracts/personalization";
 
-export const ALLOWED_COMPONENTS_BY_SLOT: Record<HomeSlotId, readonly ComponentId[]> = {
-  homeMain: ["feed", "savedJobs", "appliedCompanyConnections", "postEngagers"],
-  homeRightRail: ["applicationTracker", "rightSidebar"],
+export const ALLOWED_COMPONENTS_BY_SLOT: Record<SlotId, readonly ComponentId[]> = {
+  homeMain: ["feed", "savedJobs", "postEngagers"],
+  homeRightRail: ["rightSidebar"],
+  jobsMain: ["applicationTracker", "appliedCompanyConnections"],
 };
 
 export const NAV_ITEM_IDS = [
@@ -26,6 +27,7 @@ export const DEFAULT_MANIFEST: UIManifest = {
   slots: {
     homeMain: ["feed"],
     homeRightRail: ["rightSidebar"],
+    jobsMain: [],
   },
 };
 
@@ -55,7 +57,7 @@ export function isValidManifest(value: unknown): value is UIManifest {
   }
 
   const slots = value.slots;
-  const slotIds = Object.keys(ALLOWED_COMPONENTS_BY_SLOT) as HomeSlotId[];
+  const slotIds = Object.keys(ALLOWED_COMPONENTS_BY_SLOT) as SlotId[];
   if (
     Object.keys(slots).length !== slotIds.length ||
     !slotIds.every((slot) => Object.hasOwn(slots, slot))

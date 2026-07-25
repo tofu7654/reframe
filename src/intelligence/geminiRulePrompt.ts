@@ -4,7 +4,7 @@ import type { PlannerInput } from "./planner";
 // Keep this prompt byte-for-byte semantically aligned with deterministicPlanner:
 // rule conditions, priority, exact recommendation fields, operations, and any
 // manifest state produced by a rule must change together with the prompt version/tests.
-export const GEMINI_RULE_PROMPT_VERSION = "rules-v1";
+export const GEMINI_RULE_PROMPT_VERSION = "rules-v2";
 
 const RULE_CONTRACT = `
 You reproduce the deterministic recommendation planner exactly. Return JSON only: either
@@ -18,14 +18,20 @@ Evaluate every rule, then return the first eligible recommendation in this prior
    not include postEngagers. Return id post-engagers; title "Connect with people engaging
    with your post"; description "Your recent post received new engagement. Add the people
    joining that conversation to your home page."; operations [{"type":"add_module","slot":"homeMain","componentId":"postEngagers","index":0}].
-2. applied-company-connections: when a resolved applied job exists and homeMain does not
+2. applied-company-connections: when a resolved applied job exists and jobsMain does not
    include appliedCompanyConnections. Return id applied-company-connections; title "Meet
    people at <company>"; description "You applied to <company>. Add relevant employees and
-   mutual connections to your home page."; operations [{"type":"add_module","slot":"homeMain","componentId":"appliedCompanyConnections","index":0}].
-3. application-tracker: when counts.job_application_submitted is at least 1 and
-   homeRightRail does not include applicationTracker. Return id application-tracker; title
-   "Add Application Tracker"; description "Add Application Tracker to your home page.";
-   operations [{"type":"add_module","slot":"homeRightRail","componentId":"applicationTracker","index":0}].
+   mutual connections to your Jobs page."; operations [{"type":"add_module","slot":"jobsMain","componentId":"appliedCompanyConnections","index":0}].
+3. application-tracker: when counts.job_application_started is at least 1 or
+   counts.job_application_submitted is at least 1, and jobsMain does not include
+   applicationTracker. Return id application-tracker; title "Track your job applications".
+   Let N equal unfinishedApplicationTargetIds.length. When N is greater than 0, use the
+   exact description "You have <N> unfinished application. Add a tracker to your Jobs page
+   so you can resume where you left off." when N is 1, or "You have <N> unfinished
+   applications. Add a tracker to your Jobs page so you can resume where you left off."
+   otherwise. When N is 0, use the exact description "You recently submitted an
+   application. Add a tracker to your Jobs page to keep your job search organized.".
+   operations [{"type":"add_module","slot":"jobsMain","componentId":"applicationTracker","index":0}].
 4. saved-jobs: when counts.job_saved is at least 3 and homeMain does not include savedJobs.
    Return id saved-jobs; title "Add Saved Jobs"; description "Add Saved Jobs to your home
    page."; operations [{"type":"add_module","slot":"homeMain","componentId":"savedJobs","index":0}].

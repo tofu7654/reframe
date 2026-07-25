@@ -47,6 +47,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
   const eventStoreRef = useRef<LocalEventStore | null>(null);
   const coordinatorRef = useRef<RecommendationCoordinator | null>(null);
   const latestPlanRunnerRef = useRef(createLatestPlanRunner());
+  const pendingEventsRef = useRef<Array<{ type: AnalyticsEventType; targetId?: string }>>([]);
   const lastTrackedJobsPathRef = useRef<string | null>(null);
 
   const updateState = useCallback((nextState: PersonalizationState) => {
@@ -87,6 +88,15 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
         setIsPlanningRecommendation(false);
       });
   }, [showRecommendation]);
+
+  const recordEvent = useCallback((type: AnalyticsEventType, targetId?: string) => {
+    const coordinator = coordinatorRef.current;
+    if (coordinator) {
+      coordinator.record(type, undefined, targetId);
+      return;
+    }
+    pendingEventsRef.current.push({ type, ...(targetId ? { targetId } : {}) });
+  }, []);
 
   const trackEvent = useCallback(
     (type: AnalyticsEventType, targetId?: string) => {
@@ -149,6 +159,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
 
   const resetAll = useCallback(() => {
     latestPlanRunnerRef.current.invalidate();
+    pendingEventsRef.current = [];
     eventStoreRef.current?.clear();
     try {
       clearPersonalizationState(window.localStorage);
@@ -168,6 +179,10 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     const eventStore = new LocalEventStore(window.localStorage);
     eventStoreRef.current = eventStore;
     coordinatorRef.current = new RecommendationCoordinator(eventStore, deterministicPlanner);
+    for (const event of pendingEventsRef.current) {
+      coordinatorRef.current.record(event.type, undefined, event.targetId);
+    }
+    pendingEventsRef.current = [];
     const storedState = loadPersonalizationState(window.localStorage);
     stateRef.current = storedState;
     setPersonalizationState(storedState);
@@ -175,6 +190,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (!pathname.startsWith("/jobs")) return;
+    if (pathname.endsWith("/apply")) return;
     if (lastTrackedJobsPathRef.current === pathname) return;
     lastTrackedJobsPathRef.current = pathname;
     trackEvent("jobs_route_visited");
@@ -188,6 +204,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
       canRevert: personalizationState.history.length > 0,
       isPlanningRecommendation,
       latestPlannerComparison,
+      recordEvent,
       trackEvent,
       seedScenario,
       acceptActiveRecommendation,
@@ -201,6 +218,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
       activeRecommendation,
       isPlanningRecommendation,
       latestPlannerComparison,
+      recordEvent,
       trackEvent,
       seedScenario,
       acceptActiveRecommendation,
@@ -215,7 +233,7 @@ export function PersonalizationProvider({ children }: { children: React.ReactNod
     <PersonalizationContext.Provider value={contextValue}>
       {children}
       <RecommendationOverlay />
-      {import.meta.env.DEV ? <DevelopmentPanel /> : null}
+      <DevelopmentPanel />
       <Toaster position="bottom-right" />
     </PersonalizationContext.Provider>
   );

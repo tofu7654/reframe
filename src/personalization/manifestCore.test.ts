@@ -26,16 +26,16 @@ describe("applyRecommendation", () => {
     expect(result.manifest.slots.homeMain).toEqual(["postEngagers", "feed"]);
   });
 
-  it("adds applied-company connections to the approved Home slot", () => {
+  it("adds applied-company connections to the approved Jobs slot", () => {
     const recommendation: Recommendation = {
       id: "applied-company-connections",
       expectedManifestRevision: 0,
       title: "Meet people at Stripe",
-      description: "Add relevant employees and mutual connections to your home page.",
+      description: "Add relevant employees and mutual connections to your Jobs page.",
       operations: [
         {
           type: "add_module",
-          slot: "homeMain",
+          slot: "jobsMain",
           componentId: "appliedCompanyConnections",
           index: 0,
         },
@@ -45,19 +45,20 @@ describe("applyRecommendation", () => {
     const result = applyRecommendation(DEFAULT_MANIFEST, recommendation);
 
     expect(result.ok).toBe(true);
-    expect(result.manifest.slots.homeMain).toEqual(["appliedCompanyConnections", "feed"]);
+    expect(result.manifest.slots.jobsMain).toEqual(["appliedCompanyConnections"]);
+    expect(result.manifest.slots.homeMain).toEqual(["feed"]);
   });
 
-  it("adds an approved module atomically", () => {
+  it("adds the application tracker to the approved Jobs slot atomically", () => {
     const recommendation: Recommendation = {
       id: "application-tracker",
       expectedManifestRevision: 0,
-      title: "Add Application Tracker",
-      description: "Add Application Tracker to your home page.",
+      title: "Track your job applications",
+      description: "Add Application Tracker to your Jobs page.",
       operations: [
         {
           type: "add_module",
-          slot: "homeRightRail",
+          slot: "jobsMain",
           componentId: "applicationTracker",
         },
       ],
@@ -66,7 +67,8 @@ describe("applyRecommendation", () => {
     const result = applyRecommendation(DEFAULT_MANIFEST, recommendation);
 
     expect(result.ok).toBe(true);
-    expect(result.manifest.slots.homeRightRail).toContain("applicationTracker");
+    expect(result.manifest.slots.jobsMain).toContain("applicationTracker");
+    expect(result.manifest.slots.homeRightRail).toEqual(["rightSidebar"]);
     expect(result.manifest.revision).toBe(1);
   });
 

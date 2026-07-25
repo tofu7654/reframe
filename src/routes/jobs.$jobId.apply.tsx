@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PageShell } from "@/components/layout/PageShell";
 import { getJob } from "@/lib/jobs-data";
 import { ApplyForm } from "@/components/jobs/ApplyForm";
@@ -27,7 +27,14 @@ function ApplyPage() {
   const { job } = Route.useLoaderData();
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
-  const { trackEvent } = usePersonalization();
+  const startedJobIdRef = useRef<string | null>(null);
+  const { recordEvent, trackEvent } = usePersonalization();
+
+  useEffect(() => {
+    if (startedJobIdRef.current === job.id) return;
+    startedJobIdRef.current = job.id;
+    recordEvent("job_application_started", job.id);
+  }, [job.id, recordEvent]);
 
   if (submitted) {
     return (

@@ -24,7 +24,7 @@ const recommendationSchema = z
         z
           .object({
             type: z.literal("add_module"),
-            slot: z.enum(["homeMain", "homeRightRail"]),
+            slot: z.enum(["homeMain", "homeRightRail", "jobsMain"]),
             componentId: z.enum([
               "feed",
               "savedJobs",
@@ -39,7 +39,7 @@ const recommendationSchema = z
         z
           .object({
             type: z.literal("remove_module"),
-            slot: z.enum(["homeMain", "homeRightRail"]),
+            slot: z.enum(["homeMain", "homeRightRail", "jobsMain"]),
             componentId: z.enum([
               "feed",
               "savedJobs",

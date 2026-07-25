@@ -6,6 +6,7 @@ const input = {
   summary: {
     counts: {
       job_saved: 3,
+      job_application_started: 0,
       job_application_submitted: 0,
       jobs_route_visited: 0,
       post_published: 0,
@@ -18,6 +19,7 @@ const input = {
       manifest_restored: 0,
     },
     latestTargetIds: {},
+    unfinishedApplicationTargetIds: [],
   },
   manifest: DEFAULT_MANIFEST,
   suppressedRecommendationIds: [],
