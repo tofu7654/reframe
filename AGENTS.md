@@ -37,6 +37,10 @@ Before making product, interaction, or architecture changes, read
 - The initial tendency patterns are job exploration, recruiter-style profile
   research, and content creation. They are behavior patterns, not identity
   labels.
+- Keep the Gemini rule-match prompt in lockstep with deterministic rules. Any
+  change to a rule, its priority, evidence threshold, recommendation copy,
+  operation, or generated manifest must also update the Gemini prompt, prompt
+  version, and parity tests so LLM output can be matched exactly.
 
 ### Development
 

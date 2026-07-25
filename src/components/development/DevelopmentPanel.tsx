@@ -7,6 +7,8 @@ export function DevelopmentPanel() {
     manifest,
     suppressedRecommendationIds,
     canRevert,
+    isPlanningRecommendation,
+    latestPlannerComparison,
     seedScenario,
     revert,
     restoreDefaults,
@@ -85,6 +87,35 @@ export function DevelopmentPanel() {
           <p className="mt-2 text-[11px] text-muted-foreground">
             Suppressed: {suppressedRecommendationIds.join(", ") || "none"}
           </p>
+        </div>
+        <div className="rounded bg-muted p-2">
+          <p className="text-[11px] font-medium">Gemini rule comparison</p>
+          {isPlanningRecommendation ? (
+            <p className="mt-1 text-[10px] text-muted-foreground">Comparing Gemini with rules…</p>
+          ) : latestPlannerComparison ? (
+            <>
+              <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
+                Model: {latestPlannerComparison.model} · Prompt:{" "}
+                {latestPlannerComparison.promptVersion}
+                <br />
+                Exact match: {latestPlannerComparison.exactMatch ? "yes" : "no"} · Using:{" "}
+                {latestPlannerComparison.selectedSource}
+                {latestPlannerComparison.fallbackReason
+                  ? ` · Reason: ${latestPlannerComparison.fallbackReason}`
+                  : ""}
+              </p>
+              <p className="mt-2 text-[11px] font-medium">Gemini output</p>
+              <pre className="mt-1 max-h-32 overflow-auto text-[10px] leading-relaxed">
+                {JSON.stringify(latestPlannerComparison.geminiRecommendation, null, 2)}
+              </pre>
+              <p className="mt-2 text-[11px] font-medium">Rules output</p>
+              <pre className="mt-1 max-h-32 overflow-auto text-[10px] leading-relaxed">
+                {JSON.stringify(latestPlannerComparison.deterministicRecommendation, null, 2)}
+              </pre>
+            </>
+          ) : (
+            <p className="mt-1 text-[10px] text-muted-foreground">No comparison yet.</p>
+          )}
         </div>
       </div>
     </details>

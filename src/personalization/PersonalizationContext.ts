@@ -1,12 +1,15 @@
 import { createContext, useContext } from "react";
 import type { AnalyticsEventType } from "@/contracts/events";
 import type { Recommendation, RecommendationId, UIManifest } from "@/contracts/personalization";
+import type { VerifiedPlanResult } from "@/intelligence/verifiedPlanner";
 
 export interface PersonalizationContextValue {
   manifest: UIManifest;
   activeRecommendation: Recommendation | null;
   suppressedRecommendationIds: readonly RecommendationId[];
   canRevert: boolean;
+  isPlanningRecommendation: boolean;
+  latestPlannerComparison: VerifiedPlanResult | null;
   recordEvent(type: AnalyticsEventType, targetId?: string): void;
   trackEvent(type: AnalyticsEventType, targetId?: string): void;
   seedScenario(type: AnalyticsEventType, count: number, targetId?: string): void;

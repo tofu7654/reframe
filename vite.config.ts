@@ -7,6 +7,11 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  vite: {
+    // Gemini runs in this demo's browser bundle, so expose this explicitly
+    // rather than using Vite's default VITE_ prefix.
+    envPrefix: ["VITE_", "GEMINI_"],
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
