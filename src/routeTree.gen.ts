@@ -9,28 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SearchRouteImport } from './routes/search'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as MessagingIndexRouteImport } from './routes/messaging.index'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as JobsIndexRouteImport } from './routes/jobs.index'
-import { Route as ProfilePersonIdRouteImport } from './routes/profile.$personId'
+import { Route as MessagingIndexRouteImport } from './routes/messaging.index'
 import { Route as MessagingPersonIdRouteImport } from './routes/messaging.$personId'
+import { Route as ProfilePersonIdRouteImport } from './routes/profile.$personId'
 import { Route as JobsJobIdIndexRouteImport } from './routes/jobs.$jobId.index'
 import { Route as JobsJobIdApplyRouteImport } from './routes/jobs.$jobId.apply'
 
-const SearchRoute = SearchRouteImport.update({
-  id: '/search',
-  path: '/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MessagingIndexRoute = MessagingIndexRouteImport.update({
-  id: '/messaging/',
-  path: '/messaging/',
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JobsIndexRoute = JobsIndexRouteImport.update({
@@ -38,14 +33,19 @@ const JobsIndexRoute = JobsIndexRouteImport.update({
   path: '/jobs/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfilePersonIdRoute = ProfilePersonIdRouteImport.update({
-  id: '/profile/$personId',
-  path: '/profile/$personId',
+const MessagingIndexRoute = MessagingIndexRouteImport.update({
+  id: '/messaging/',
+  path: '/messaging/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagingPersonIdRoute = MessagingPersonIdRouteImport.update({
   id: '/messaging/$personId',
   path: '/messaging/$personId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfilePersonIdRoute = ProfilePersonIdRouteImport.update({
+  id: '/profile/$personId',
+  path: '/profile/$personId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JobsJobIdIndexRoute = JobsJobIdIndexRouteImport.update({
@@ -136,13 +136,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/search': {
-      id: '/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -150,11 +143,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/messaging/': {
-      id: '/messaging/'
-      path: '/messaging'
-      fullPath: '/messaging/'
-      preLoaderRoute: typeof MessagingIndexRouteImport
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/jobs/': {
@@ -164,11 +157,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JobsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile/$personId': {
-      id: '/profile/$personId'
-      path: '/profile/$personId'
-      fullPath: '/profile/$personId'
-      preLoaderRoute: typeof ProfilePersonIdRouteImport
+    '/messaging/': {
+      id: '/messaging/'
+      path: '/messaging'
+      fullPath: '/messaging/'
+      preLoaderRoute: typeof MessagingIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messaging/$personId': {
@@ -176,6 +169,13 @@ declare module '@tanstack/react-router' {
       path: '/messaging/$personId'
       fullPath: '/messaging/$personId'
       preLoaderRoute: typeof MessagingPersonIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/$personId': {
+      id: '/profile/$personId'
+      path: '/profile/$personId'
+      fullPath: '/profile/$personId'
+      preLoaderRoute: typeof ProfilePersonIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/jobs/$jobId/': {
@@ -208,3 +208,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

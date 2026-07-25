@@ -1,14 +1,22 @@
 import { Link } from "@tanstack/react-router";
 import { Bookmark, Share2, MoreHorizontal, ExternalLink, BadgeCheck } from "lucide-react";
+import { useState } from "react";
 import type { Job } from "@/lib/jobs-data";
+import { usePersonalization } from "@/personalization/PersonalizationContext";
 
 export function JobHeaderCard({ job }: { job: Job }) {
+  const [saved, setSaved] = useState(false);
+  const { trackEvent } = usePersonalization();
+
+  const toggleSaved = () => {
+    if (!saved) trackEvent("job_saved");
+    setSaved(!saved);
+  };
+
   return (
     <div className="mt-3 bg-card border border-border rounded-lg p-6">
       <div className="flex items-center gap-3">
-        <div
-          className={`h-12 w-12 rounded grid place-items-center font-bold ${job.logoColor}`}
-        >
+        <div className={`h-12 w-12 rounded grid place-items-center font-bold ${job.logoColor}`}>
           {job.logoInitials}
         </div>
         <div className="font-semibold">{job.company}</div>
@@ -47,8 +55,14 @@ export function JobHeaderCard({ job }: { job: Job }) {
         >
           Apply <ExternalLink className="h-4 w-4" />
         </Link>
-        <button className="inline-flex items-center gap-1 h-10 px-6 rounded-full border border-primary text-primary font-semibold text-sm hover:bg-primary/10">
-          <Bookmark className="h-4 w-4" /> Save
+        <button
+          type="button"
+          onClick={toggleSaved}
+          className="inline-flex items-center gap-1 h-10 px-6 rounded-full border border-primary text-primary font-semibold text-sm hover:bg-primary/10"
+          aria-pressed={saved}
+        >
+          <Bookmark className="h-4 w-4" fill={saved ? "currentColor" : "none"} />
+          {saved ? "Saved" : "Save"}
         </button>
       </div>
     </div>

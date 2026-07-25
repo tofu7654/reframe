@@ -4,6 +4,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { getJob } from "@/lib/jobs-data";
 import { ApplyForm } from "@/components/jobs/ApplyForm";
 import { ApplySuccess } from "@/components/jobs/ApplySuccess";
+import { usePersonalization } from "@/personalization/PersonalizationContext";
 
 export const Route = createFileRoute("/jobs/$jobId/apply")({
   loader: ({ params }) => {
@@ -15,9 +16,7 @@ export const Route = createFileRoute("/jobs/$jobId/apply")({
   head: ({ loaderData }) => ({
     meta: [
       {
-        title: loaderData
-          ? `Apply · ${loaderData.job.title} — LinkedOut`
-          : "Apply — LinkedOut",
+        title: loaderData ? `Apply · ${loaderData.job.title} — LinkedOut` : "Apply — LinkedOut",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -28,6 +27,7 @@ function ApplyPage() {
   const { job } = Route.useLoaderData();
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
+  const { trackEvent } = usePersonalization();
 
   if (submitted) {
     return (
@@ -52,7 +52,10 @@ function ApplyPage() {
         <ApplyForm
           job={job}
           onCancel={() => navigate({ to: "/jobs/$jobId", params: { jobId: job.id } })}
-          onSubmit={() => setSubmitted(true)}
+          onSubmit={() => {
+            trackEvent("job_application_submitted");
+            setSubmitted(true);
+          }}
         />
       </main>
     </PageShell>

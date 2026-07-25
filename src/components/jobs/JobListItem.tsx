@@ -1,9 +1,19 @@
 import { Bookmark } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import type { Job } from "@/lib/jobs-data";
+import { usePersonalization } from "@/personalization/PersonalizationContext";
 
 export function JobListItem({ job }: { job: Job }) {
   const navigate = useNavigate();
+  const [saved, setSaved] = useState(false);
+  const { trackEvent } = usePersonalization();
+
+  const toggleSaved = () => {
+    if (!saved) trackEvent("job_saved");
+    setSaved(!saved);
+  };
+
   return (
     <li
       onClick={() => navigate({ to: "/jobs/$jobId", params: { jobId: job.id } })}
@@ -40,11 +50,18 @@ export function JobListItem({ job }: { job: Job }) {
         </div>
       </div>
       <button
-        onClick={(e) => e.stopPropagation()}
-        className="text-muted-foreground hover:text-foreground h-8 w-8 grid place-items-center rounded-full hover:bg-accent"
-        aria-label="Save job"
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          toggleSaved();
+        }}
+        className={`h-8 w-8 grid place-items-center rounded-full hover:bg-accent ${
+          saved ? "text-primary" : "text-muted-foreground hover:text-foreground"
+        }`}
+        aria-label={saved ? "Remove saved job" : "Save job"}
+        aria-pressed={saved}
       >
-        <Bookmark className="h-4 w-4" />
+        <Bookmark className="h-4 w-4" fill={saved ? "currentColor" : "none"} />
       </button>
     </li>
   );
