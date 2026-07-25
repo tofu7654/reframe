@@ -1,23 +1,45 @@
 import type { Recommendation, RecommendationId } from "@/contracts/personalization";
 import { getJob } from "@/lib/jobs-data";
+import {
+  getManifestPreset,
+  manifestMatchesPreset,
+  type ManifestPresetId,
+} from "@/personalization/manifestPresets";
 import type { PlannerInput, RecommendationPlanner } from "./planner";
 
 // Gemini parity contract: changes to these rules, priority, output copy,
 // operations, or generated manifest state must be mirrored in
 // geminiRulePrompt.ts, its version, and parity tests before they ship.
-const PRIORITY: RecommendationId[] = [
+export const DETERMINISTIC_RULE_PRIORITY = [
+  "creator-relationship-hub",
+  "application-momentum",
+  "job-search-command-center",
   "post-engagers",
   "applied-company-connections",
   "application-tracker",
   "saved-jobs",
   "promote-jobs",
-];
+] as const satisfies readonly RecommendationId[];
+
+export const PRESET_RULE_THRESHOLDS = {
+  creatorRelationshipHub: {
+    postsPublished: 2,
+    postEngagementsReceived: 2,
+  },
+  applicationMomentum: {
+    applicationsStarted: 2,
+    applicationsSubmitted: 1,
+  },
+  jobSearchCommandCenter: {
+    searchesPerformed: 2,
+  },
+} as const;
 
 export const deterministicPlanner: RecommendationPlanner = {
   plan(input) {
     const candidates = buildCandidates(input);
     return (
-      PRIORITY.map((id) => candidates.get(id)).find(
+      DETERMINISTIC_RULE_PRIORITY.map((id) => candidates.get(id)).find(
         (recommendation): recommendation is Recommendation => Boolean(recommendation),
       ) ?? null
     );
@@ -30,6 +52,46 @@ function buildCandidates(input: PlannerInput): Map<RecommendationId, Recommendat
   const engagedPostId = input.summary.latestTargetIds.post_engagement_received;
   const appliedJobId = input.summary.latestTargetIds.job_application_submitted;
   const appliedJob = appliedJobId ? getJob(appliedJobId) : undefined;
+
+  if (
+    input.summary.counts.post_published >=
+      PRESET_RULE_THRESHOLDS.creatorRelationshipHub.postsPublished &&
+    input.summary.counts.post_engagement_received >=
+      PRESET_RULE_THRESHOLDS.creatorRelationshipHub.postEngagementsReceived &&
+    !suppressed.has("creator-relationship-hub") &&
+    !manifestMatchesPreset(input.manifest, "creator-relationship-hub")
+  ) {
+    candidates.set(
+      "creator-relationship-hub",
+      buildPresetRecommendation(input, "creator-relationship-hub"),
+    );
+  }
+
+  if (
+    input.summary.counts.job_application_started >=
+      PRESET_RULE_THRESHOLDS.applicationMomentum.applicationsStarted &&
+    input.summary.counts.job_application_submitted >=
+      PRESET_RULE_THRESHOLDS.applicationMomentum.applicationsSubmitted &&
+    !suppressed.has("application-momentum") &&
+    !manifestMatchesPreset(input.manifest, "application-momentum")
+  ) {
+    candidates.set(
+      "application-momentum",
+      buildPresetRecommendation(input, "application-momentum"),
+    );
+  }
+
+  if (
+    input.summary.counts.job_search_performed >=
+      PRESET_RULE_THRESHOLDS.jobSearchCommandCenter.searchesPerformed &&
+    !suppressed.has("job-search-command-center") &&
+    !manifestMatchesPreset(input.manifest, "job-search-command-center")
+  ) {
+    candidates.set(
+      "job-search-command-center",
+      buildPresetRecommendation(input, "job-search-command-center"),
+    );
+  }
 
   if (
     engagedPostId &&
@@ -145,4 +207,18 @@ function buildCandidates(input: PlannerInput): Map<RecommendationId, Recommendat
   }
 
   return candidates;
+}
+
+function buildPresetRecommendation(
+  input: PlannerInput,
+  manifestId: Exclude<ManifestPresetId, "talent-scout-workspace">,
+): Recommendation {
+  const preset = getManifestPreset(manifestId);
+  return {
+    id: manifestId,
+    expectedManifestRevision: input.manifest.revision,
+    title: preset.title,
+    description: preset.recommendationCopy,
+    operations: [{ type: "apply_manifest", manifestId }],
+  };
 }

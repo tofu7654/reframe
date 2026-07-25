@@ -1,6 +1,7 @@
 import type { RecommendationId } from "./personalization";
 
 export type AnalyticsEventType =
+  | "job_search_performed"
   | "job_saved"
   | "job_application_started"
   | "job_application_submitted"

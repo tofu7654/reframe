@@ -6,6 +6,7 @@ import { usePersonalization } from "@/personalization/PersonalizationContext";
 import { COMPONENT_REGISTRY } from "@/components/personalization/componentRegistry";
 import { NAV_REGISTRY } from "@/components/nav/navRegistry";
 import { Button } from "@/components/ui/button";
+import { ManifestPresetPreviewDialog } from "@/components/development/ManifestPresetPreviewDialog";
 import {
   Dialog,
   DialogClose,
@@ -32,6 +33,22 @@ export function RecommendationPreviewDialog({
     () => applyRecommendation(manifest, recommendation),
     [manifest, recommendation],
   );
+  const manifestOperation = recommendation.operations.find(
+    (operation) => operation.type === "apply_manifest",
+  );
+  if (manifestOperation) {
+    return (
+      <ManifestPresetPreviewDialog
+        presetId={open ? manifestOperation.manifestId : null}
+        onClose={() => onOpenChange(false)}
+        onApply={() => {
+          onAccept();
+          return true;
+        }}
+      />
+    );
+  }
+
   const addedModules = recommendation.operations.filter(
     (operation) => operation.type === "add_module",
   );

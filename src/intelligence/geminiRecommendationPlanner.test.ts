@@ -5,6 +5,7 @@ import { createGeminiRecommendationPlanner } from "./geminiRecommendationPlanner
 const input = {
   summary: {
     counts: {
+      job_search_performed: 0,
       job_saved: 3,
       job_application_started: 0,
       job_application_submitted: 0,
@@ -55,6 +56,69 @@ describe("createGeminiRecommendationPlanner", () => {
       recommendation: {
         id: "saved-jobs",
         title: "Add Saved Jobs",
+      },
+    });
+  });
+
+  it("accepts operations from the complete approved manifest slot catalog", async () => {
+    const planner = createGeminiRecommendationPlanner({
+      apiKey: "demo-key",
+      request: async () =>
+        JSON.stringify({
+          ...JSON.parse(savedJobsJson),
+          operations: [
+            {
+              type: "add_module",
+              slot: "homeLeftRail",
+              componentId: "savedJobs",
+              index: 0,
+            },
+          ],
+        }),
+    });
+
+    await expect(planner.plan(input)).resolves.toMatchObject({
+      status: "ok",
+      recommendation: {
+        operations: [
+          {
+            type: "add_module",
+            slot: "homeLeftRail",
+            componentId: "savedJobs",
+          },
+        ],
+      },
+    });
+  });
+
+  it("accepts a constrained approved-manifest recommendation", async () => {
+    const planner = createGeminiRecommendationPlanner({
+      apiKey: "demo-key",
+      request: async () =>
+        JSON.stringify({
+          id: "job-search-command-center",
+          expectedManifestRevision: 0,
+          title: "Your Job Search Command Center",
+          description: "Use the approved job-search workspace.",
+          operations: [
+            {
+              type: "apply_manifest",
+              manifestId: "job-search-command-center",
+            },
+          ],
+        }),
+    });
+
+    await expect(planner.plan(input)).resolves.toMatchObject({
+      status: "ok",
+      recommendation: {
+        id: "job-search-command-center",
+        operations: [
+          {
+            type: "apply_manifest",
+            manifestId: "job-search-command-center",
+          },
+        ],
       },
     });
   });

@@ -21,6 +21,7 @@ const savedJobsRecommendation: Recommendation = {
 const input = {
   summary: {
     counts: {
+      job_search_performed: 0,
       job_saved: 3,
       job_application_submitted: 0,
       jobs_route_visited: 0,
@@ -78,6 +79,35 @@ describe("createVerifiedPlanner", () => {
         recommendation: { ...savedJobsRecommendation, title: "Saved jobs for you" },
         model: "gemini-test",
         promptVersion: "rules-v1",
+      }),
+      rulesPlanner(savedJobsRecommendation),
+    );
+
+    await expect(planner.plan(input)).resolves.toMatchObject({
+      finalRecommendation: savedJobsRecommendation,
+      exactMatch: false,
+      selectedSource: "rules",
+      fallbackReason: "mismatch",
+    });
+  });
+
+  it("falls back to rules when Gemini changes the manifest operation", async () => {
+    const planner = createVerifiedPlanner(
+      geminiPlanner({
+        status: "ok",
+        recommendation: {
+          ...savedJobsRecommendation,
+          operations: [
+            {
+              type: "add_module",
+              slot: "homeLeftRail",
+              componentId: "savedJobs",
+              index: 0,
+            },
+          ],
+        },
+        model: "gemini-test",
+        promptVersion: "rules-v3",
       }),
       rulesPlanner(savedJobsRecommendation),
     );

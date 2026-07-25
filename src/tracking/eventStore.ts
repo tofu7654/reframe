@@ -4,6 +4,7 @@ const STORAGE_KEY = "reframe.events";
 const STORAGE_SCHEMA_VERSION = 1;
 const DEFAULT_HISTORY_LIMIT = 250;
 const EVENT_TYPES: AnalyticsEventType[] = [
+  "job_search_performed",
   "job_saved",
   "job_application_started",
   "job_application_submitted",

@@ -1,5 +1,6 @@
 import type { Recommendation, UIManifest, UIOperation } from "@/contracts/personalization";
 import { ALLOWED_COMPONENTS_BY_SLOT, NAV_ITEM_IDS, isValidManifest } from "@/registry/catalog";
+import { getManifestPreset } from "./manifestPresets";
 
 export type ApplyRecommendationResult =
   | { ok: true; manifest: UIManifest }
@@ -15,6 +16,26 @@ export function applyRecommendation(
 ): ApplyRecommendationResult {
   if (recommendation.expectedManifestRevision !== manifest.revision) {
     return { ok: false, manifest, reason: "stale_manifest" };
+  }
+
+  const manifestOperations = recommendation.operations.filter(
+    (operation) => operation.type === "apply_manifest",
+  );
+  if (manifestOperations.length > 0) {
+    if (
+      recommendation.operations.length !== 1 ||
+      recommendation.id !== manifestOperations[0].manifestId
+    ) {
+      return { ok: false, manifest, reason: "invalid_operation" };
+    }
+    const preset = getManifestPreset(manifestOperations[0].manifestId);
+    const nextManifest = {
+      ...structuredClone(preset.manifest),
+      revision: manifest.revision + 1,
+    };
+    return isValidManifest(nextManifest)
+      ? { ok: true, manifest: nextManifest }
+      : { ok: false, manifest, reason: "invalid_operation" };
   }
 
   if (!recommendation.operations.every((operation) => isAllowedOperation(manifest, operation))) {
@@ -66,6 +87,8 @@ function isAllowedOperation(manifest: UIManifest, operation: UIOperation): boole
         (operation.afterNavItemId === undefined ||
           manifest.navigation.includes(operation.afterNavItemId))
       );
+    case "apply_manifest":
+      return false;
   }
 }
 
@@ -102,6 +125,9 @@ function applyOperation(manifest: UIManifest, operation: UIOperation): void {
         ? manifest.navigation.indexOf(operation.afterNavItemId)
         : manifest.navigation.length - 1;
       manifest.navigation.splice(targetIndex + 1, 0, operation.navItemId);
+      return;
     }
+    case "apply_manifest":
+      return;
   }
 }

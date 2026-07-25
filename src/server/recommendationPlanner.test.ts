@@ -8,6 +8,7 @@ describe("server recommendation planner scaffold", () => {
       schemaVersion: 1,
       summary: {
         counts: {
+          job_search_performed: 0,
           job_saved: 0,
           job_application_started: 0,
           job_application_submitted: 0,
