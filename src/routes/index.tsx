@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { TopNav } from "@/components/linkedout/TopNav";
-import { LeftSidebar } from "@/components/linkedout/LeftSidebar";
-import { Feed } from "@/components/linkedout/Feed";
-import { RightSidebar } from "@/components/linkedout/RightSidebar";
+import { PageShell } from "@/components/layout/PageShell";
+import { LeftSidebar } from "@/components/sidebar/LeftSidebar";
+import { Feed } from "@/components/feed/Feed";
+import { RightSidebar } from "@/components/sidebar/RightSidebar";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -27,8 +27,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="min-h-screen bg-background">
-      <TopNav />
+    <PageShell>
       <main className="max-w-[1128px] mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-[225px_1fr] lg:grid-cols-[225px_1fr_300px] gap-6">
         <div className="hidden md:block">
           <LeftSidebar />
@@ -40,6 +39,6 @@ function Index() {
           <RightSidebar />
         </div>
       </main>
-    </div>
+    </PageShell>
   );
 }
