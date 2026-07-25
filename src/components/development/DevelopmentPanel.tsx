@@ -13,6 +13,19 @@ export function DevelopmentPanel() {
     resetAll,
   } = usePersonalization();
 
+  if (!import.meta.env.DEV) {
+    return (
+      <Button
+        className="fixed bottom-4 left-4 z-40 shadow-lg"
+        variant="secondary"
+        onClick={resetAll}
+      >
+        <RotateCcw className="h-4 w-4" />
+        Reset to default
+      </Button>
+    );
+  }
+
   return (
     <details className="fixed bottom-4 left-4 z-40 w-[min(360px,calc(100vw-2rem))] rounded-lg border border-dashed border-primary/40 bg-background/95 shadow-lg backdrop-blur">
       <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-primary">
